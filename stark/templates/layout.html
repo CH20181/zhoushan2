@@ -1,0 +1,114 @@
+{% load static %}
+{% load rbac %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>舟山边检</title>
+    <link rel="shortcut icon" href="{% static 'stark/imgs/logo.png' %} ">
+    <link rel="stylesheet" href="{% static 'stark/plugins/bootstrap/css/bootstrap.css' %} "/>
+    <link rel="stylesheet" href="{% static 'stark/plugins/font-awesome/css/font-awesome.css' %} "/>
+    <link rel="stylesheet" href="{% static 'stark/plugins/datetimepicker/css/bootstrap-datetimepicker.css' %} "/>
+    <link rel="stylesheet" href="{% static 'stark/css/commons.css' %} "/>
+    <link rel="stylesheet" href="{% static 'stark/css/nav.css' %} "/>
+    <link rel="stylesheet" href="{% static 'stark/css/search-group.css' %} "/>
+    <link rel="stylesheet" href="{% static 'rbac/css/rbac.css' %} "/>
+    {% block css %}{% endblock %}
+</head>
+<body>
+
+<div class="pg-header">
+    <div class="nav">
+        <div class="logo-area left ">
+            <a href="#">
+{#                <img class="logo" src="#">#}
+                <span style="font-size: 18px;">舟山边检船情申报</span>
+            </a>
+        </div>
+
+        <div class="left-menu left">
+            <a class="menu-item" href="http://www.baidu.com" target="_blank">百度一下</a>
+            <a class="menu-item" href="http://www.shipxy.com/" target="_blank">船讯网</a>
+            <a class="menu-item" href="https://www.hifleet.com/web" target="_blank">船队在线</a>
+                <div class="menu-item">
+                    <span>船情下载</span>
+                    <i class="fa fa-caret-down" aria-hidden="true"></i>
+                    <div class="more-info">
+                        <a href="/zhoushan/web/plan/play/update/" class="more-item">今日船情</a>
+                        <a href="/zhoushan/web/ship/department/update/" class="more-item">在港船舶动态</a>
+                    </div>
+                </div>
+        </div>
+
+        <div class="right-menu right clearfix">
+
+            <div class="user-info right">
+                <a href="#" class="avatar">
+                    <img class="img-circle" src="{% static 'stark/imgs/abc.png' %}">
+                </a>
+
+                <div class="more-info">
+                    {#                    <a href="#" class="more-item">个人信息</a>#}
+                    <a href="{% url 'logout' %}" class="more-item">注销</a>
+                </div>
+            </div>
+
+            <a class="user-menu right">
+                通知
+                <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                <span class="badge bg-success">99+</span>
+            </a>
+
+            <a class="user-menu right">
+                邮件
+                <i class="fa fa-envelope-o" aria-hidden="true"></i>
+                <span class="badge bg-success">99+</span>
+            </a>
+
+            <a class="user-menu right">
+                消息
+                <i class="fa fa-bell-o" aria-hidden="true"></i>
+                <span class="badge bg-danger">99+</span>
+            </a>
+        </div>
+
+    </div>
+</div>
+<div class="pg-body">
+    <div class="left-menu">
+        <div class="menu-body">
+            {% multi_menu request %}
+        </div>
+    </div>
+    <div class="right-body">
+        <div>
+            {% breadcrumb request %}
+        </div>
+        {% block content %} {% endblock %}
+    </div>
+</div>
+
+
+<script src="{% static 'stark/js/jquery-3.3.1.min.js' %} "></script>
+<script src="{% static 'stark/plugins/bootstrap/js/bootstrap.js' %} "></script>
+<script src="{% static 'stark/plugins/datetimepicker/js/bootstrap-datetimepicker.js' %} "></script>
+<script src="{% static 'stark/plugins/datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js' %} "></script>
+<script src="{% static 'rbac/js/rbac.js' %} "></script>
+<script>
+    $('.form_date').datetimepicker({
+        {#minView: "month",#}
+        minView: 0,
+        language: "zh-CN",
+        sideBySide: true,
+        format: 'yyyy-mm-dd hh:ii',
+        {#format:'yyyy-mm-dd HH:mm',#}
+        bootcssVer: 3,
+        startDate: new Date(),
+        autoclose: true,
+        todayBtn: true,
+        pickerPosition: "bottom-left"
+    });
+</script>
+{% block js %} {% endblock %}
+</body>
+</html>
