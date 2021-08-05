@@ -84,7 +84,7 @@ def logout(request):
     """
     request.session.delete()
 
-    return redirect('/login/')
+    return redirect('/')
 
 
 def index(request):

@@ -35,7 +35,7 @@ class Create():
         new_sheet.write(1, 11, "代理公司", self.style1)
         new_sheet.write(1, 12, "风险等级", self.style1)
         new_sheet.write(1, 13, "入口岸时间", self.style1)
-        new_sheet.write(1, 14, "近期靠泊码头", self.style1)
+        new_sheet.write(1, 14, "历史移泊计划", self.style1)
         return new_sheet
 
     def set_init1(self, a):
