@@ -10,7 +10,10 @@ class Create():
         self.user_id = user_id
         self.new_sheet = self.create_xls()
         self.main()
-        self.new_wb.save(file_name + '\\%s在港船舶动态.xlsx' % department)
+        if department == '指挥中心':
+            self.new_wb.save(file_name + '\\舟山站在港船舶动态.xlsx')
+        else:
+            self.new_wb.save(file_name + '\\%s在港船舶动态.xlsx' % department)
 
     def create_xls(self):
         self.new_wb = xlwt.Workbook()
@@ -19,6 +22,8 @@ class Create():
         self.set_init3(new_sheet)
         self.set_init1(new_sheet)
         b = '%s在港船舶动态' % self.department
+        if self.department == '指挥中心':
+            b = '舟山站在港船舶动态'
         new_sheet.write_merge(0, 0, 0, 14, b, self.style2)
         # new_sheet.write(0,0,b)
         new_sheet.write(1, 0, "序号", self.style1)
@@ -138,7 +143,8 @@ class Create():
         if self.department == '指挥中心':
             ship_obj = models.Ship.objects.filter(status=1).order_by('location')
         else:
-            ship_obj = models.Ship.objects.filter(status=1, location__department__title=self.department).order_by('location')
+            ship_obj = models.Ship.objects.filter(status=1, location__department__title=self.department).order_by(
+                'location')
         for i in ship_obj:
             plan_obj = models.Ship.objects.get(id=i.id).plan_set.all().order_by('location')
             self.write(i, plan_obj)

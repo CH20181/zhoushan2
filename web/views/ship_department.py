@@ -39,6 +39,8 @@ class ShipDepartmentHandler(StarkHandler):
         two_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         Create(two_path, department, user_id, )
         first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\%s在港船舶动态.xlsx' % department
+        if department == '指挥中心':
+            first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\舟山站在港船舶动态.xlsx'
         return self.file_response_download1(first_path)
 
     def get_urls(self):

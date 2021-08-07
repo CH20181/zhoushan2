@@ -53,7 +53,8 @@ class ShipCheckHandler(StarkHandler):
     action_list = [action_multi_confirm, action_multi_cancel]
 
     def save(self, form, request, is_update, *args, **kwargs):
-        user_id = 1
+        user_id = 1  # 审核通过的人
+        print('审核通过的运行')
         plan_choice = form.instance.title_id
         if not is_update:
             form.instance.boat_status = plan_choice

@@ -161,6 +161,8 @@ class PlanPlayHandler(StarkHandler):
         Create(two_path, department, user_id, )
         first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\%s%s船情.xlsx' % (
             department, self.get_time)
+        if department == '指挥中心':
+            first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\舟山站%s船情.xlsx'%(self.get_time)
         return self.file_response_download1(first_path)
         # return HttpResponse('ok')
 

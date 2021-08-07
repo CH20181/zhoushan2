@@ -1,7 +1,7 @@
 import datetime
 
 from django.http import HttpResponse
-
+from itertools import chain
 from web import models
 import xlwt
 
@@ -14,7 +14,10 @@ class Create():
         self.user_id = user_id
         self.new_sheet = self.create_xls()
         self.main()
-        self.new_wb.save(file_name + '\\%s%s船情.xlsx' % (department, self.get_time))
+        if department == '指挥中心':
+            self.new_wb.save(file_name + '\\舟山站%s船情.xlsx'%(self.get_time))
+        else:
+            self.new_wb.save(file_name + '\\舟山站%s船情.xlsx'%(self.get_time))
 
     @property
     def get_time(self):
@@ -30,6 +33,8 @@ class Create():
         self.set_init3(new_sheet)
         self.set_init1(new_sheet)
         b = '%s%s船情' % (self.department, self.get_time)
+        if self.department == '指挥中心':
+            b = '舟山站%s船情' % (self.get_time)
         new_sheet.write_merge(0, 0, 0, 15, b, self.style2)
         new_sheet.write(1, 0, "序号", self.style1)
         new_sheet.write(1, 1, "船名", self.style1)
@@ -171,8 +176,12 @@ class Create():
         if self.department == '指挥中心':
             plan_obj = models.Plan.objects.filter(boat_status=7,move_time__gt=self.get_today_time).order_by('-title')
         else:
-            plan_obj = models.Plan.objects.filter(boat_status=7, location__department__title=self.department,move_time=self.get_today_time).order_by(
+            plan_obj = models.Plan.objects.filter(boat_status=7, location__department__title=self.department,move_time__year=datetime.datetime.now().year,move_time__month=datetime.datetime.now().month,move_time__day=datetime.datetime.now().day).order_by(
                 'title')
+            obj = models.Plan.objects.filter(boat_status=7,ship__location__department__title=self.department,title=3,move_time__year=datetime.datetime.now().year,move_time__month=datetime.datetime.now().month,move_time__day=datetime.datetime.now().day)
+            # 将两个QuerySet对象合并为一个
+            plan_obj = chain(plan_obj,obj)
+
         if not plan_obj:
             return HttpResponse('别急小伙子，船情还没出来！！！！！')
         for i in plan_obj:
