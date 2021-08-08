@@ -195,9 +195,15 @@ class Create():
             # print(ship_obj.location.title, plan_obj.location.title, plan_obj.next_port)
             plan_str += ship_obj.last_port + '------>' + plan_obj.location.title + plan_obj.next_port
         elif name == '出境' or name == '出港':
-            plan_str += ship_obj.location.title + '------>' + plan_obj.next_port
+            try:
+                plan_str += ship_obj.location.title + '------>' + plan_obj.next_port
+            except:
+                plan_str += '****' + '------>' + plan_obj.next_port
         else:
-            plan_str += ship_obj.location.title + '------>' + plan_obj.location.title + plan_obj.next_port
+            try:
+                plan_str += ship_obj.location.title + '------>' + plan_obj.location.title + plan_obj.next_port
+            except:
+                plan_str += '****' + '------>' + plan_obj.location.title + plan_obj.next_port
         return plan_str
 
     def into_or_out(self, plan_obj, ship_obj):
@@ -248,7 +254,10 @@ class Create():
                              ship_obj.user.company.title + "\n" + ship_obj.user.nickname + ship_obj.user.company.phone,
                              self.style)
         self.new_sheet.write(self.number, 12, '', self.style)
-        self.new_sheet.write(self.number, 13, plan_obj.location.department.title, self.style)
+        try:
+            self.new_sheet.write(self.number, 13, plan_obj.location.department.title, self.style)
+        except:
+            self.new_sheet.write(self.number, 13, '****', self.style)
         self.new_sheet.write(self.number, 14, '', self.style)
         self.new_sheet.write(self.number, 15, 'MMSI:' + ship_obj.MMSI + ship_obj.note, self.style)
         self.number += 1

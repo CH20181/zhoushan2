@@ -64,7 +64,7 @@ class ShipAgentHandler(StarkHandler):
         location = obj.location
         if not location:
             return obj.port_in
-        return '%s--%s' % (location, obj.port_in)
+        return '%s%s' % (location, obj.port_in)
 
     def display_name(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
@@ -96,8 +96,10 @@ class ShipAgentHandler(StarkHandler):
                 # 先获取原来的所属执勤队，在这次添加出港出境计划后
                 title_num = form.instance.title_id  # 船舶计划名称的id
                 form.instance.ship_id = ship_id
-                form.instance.agent_id = user_id
-                form.instance.location_id = location.id
+                try:
+                    form.instance.location_id = location.id
+                except:
+                    form.instance.location_id = 63
                 form.instance.boat_status_id = title_num  # 船舶状态的id
                 form.save()
                 form.instance.ship.boat_status_id = title_num
@@ -144,9 +146,14 @@ class ShipAgentHandler(StarkHandler):
         current_change_object = self.model_class.objects.filter(pk=pk).first()
         if not current_change_object:
             return HttpResponse('要修改的数据不存在，请重新选择！')
-        obj = self.model_class.objects.filter(status__in=[1, 2]).first()
-        if obj:
+        obj = models.Ship.objects.filter(pk=pk).filter(status=0)
+        if not obj:
             return HttpResponse('禁止修改！！！')
+        # obj = self.model_class.objects.filter(status__in=[1, 2]).first()
+        # obj = models.Ship.objects.filter(status__in=[1, 2]).first()
+        # print(obj)
+        # if obj:
+        #     return HttpResponse('禁止修改！！！')
 
         model_form_class = self.get_model_form_class(False, request, pk, *args, **kwargs)
         if request.method == 'GET':
