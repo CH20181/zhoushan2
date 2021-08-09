@@ -26,7 +26,13 @@ class ShipGetMove(StarkModelForm):
 class ShipCheckModelForm(StarkModelForm):
     class Meta:
         model = models.Ship
-        exclude = ['user', 'boat_status', 'status', 'port_in', 'display', 'location']
+        # exclude = ['user', 'boat_status', 'status', 'port_in', 'display', 'location','note']
+        exclude = ['user', 'boat_status', 'status', 'display', 'note']
+        labels = {'port_in': '在港泊位(锚地填写锚地)','location':'在港船厂/码头'}
+    def __init__(self, *args, **kwargs):
+        super(ShipCheckModelForm, self).__init__(*args, **kwargs)
+        # 此处是添加出港出境计划的视图
+        self.fields['location'].queryset = models.Location.objects.all()
 
     def clean_IMO(self):
         IMO = self.cleaned_data.get('IMO')
@@ -80,7 +86,7 @@ class ShipAgentHandler(StarkHandler):
 
     def get_add_btn(self, request, *args, **kwargs):
         if self.has_add_btn:
-            return "<a class='btn btn-primary' href='%s'>添加入港入境船舶</a>" % self.reverse_commens_url(self.get_add_url_name,
+            return "<a class='btn btn-primary' href='%s'>添加船舶基本信息</a>" % self.reverse_commens_url(self.get_add_url_name,
                                                                                                   *args, **kwargs)
         return None
 

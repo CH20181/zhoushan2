@@ -1,4 +1,6 @@
 import datetime
+import locale
+
 from django.http import HttpResponse
 from itertools import chain
 from web import models
@@ -232,7 +234,23 @@ class Create():
                 return ''
         else:
             return plan_obj.location.department.title
-
+    def where_port(self,plan_obj,ship_obj):
+        type_name = plan_obj.title.id
+        # 出港、出境
+        if type_name == 1 or type_name == 2:
+            try:
+                return ship_obj.location.title + ship_obj.port_in
+            except:
+                return '暂无'
+            # 移泊
+        elif type_name == 3:
+            try:
+                return ship_obj.location.title + '----->' + plan_obj.location.title + plan_obj.next_port
+            except:
+                return '暂无'
+            # 出港、出境
+        else:
+            return plan_obj.location.title + plan_obj.next_port
     def write(self, plan_obj, ship_obj):
         self.new_sheet.write(self.number, 0, str(self.number - 1), self.style)
         self.new_sheet.write(self.number, 1, plan_obj.title.title, self.style)
@@ -244,12 +262,14 @@ class Create():
         self.new_sheet.write(self.number, 7, ship_obj.nationality, self.style)
         self.new_sheet.write(self.number, 8, ship_obj.crew_detail, self.style)
         self.new_sheet.write(self.number, 9, ship_obj.goods, self.style)
-        self.new_sheet.write(self.number, 10, ship_obj.guns, self.style)
-        self.new_sheet.write(self.number, 11, '', self.style)
+        self.new_sheet.write(self.number, 10, ship_obj.get_guns_display(), self.style)
+        locale.setlocale(locale.LC_CTYPE, 'chinese')
+        self.new_sheet.write(self.number, 11, plan_obj.move_time.strftime("%m月%d日%H时%M分"), self.style)
         try:
-            self.new_sheet.write(self.number, 12, ship_obj.location.title, self.style)
+            self.new_sheet.write(self.number, 12, self.where_port(plan_obj,ship_obj), self.style)
         except:
             self.new_sheet.write(self.number, 12, '', self.style)
+
         self.new_sheet.write(self.number, 13, ship_obj.purpose, self.style)
         self.new_sheet.write(self.number, 14,
                              ship_obj.user.company.title + ship_obj.user.nickname + ship_obj.user.phone, self.style)
