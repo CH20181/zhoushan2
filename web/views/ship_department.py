@@ -95,7 +95,7 @@ class ShipDepartmentHandler(StarkHandler):
         base_url = reverse('stark:web_plan_department_list', kwargs={'ship_id': obj.pk})
         return mark_safe('<a href="%s">历史船情</a>' % base_url)
 
-    list_display = [display_name, 'nationality', 'crew_total', 'IMO', 'MMSI', 'crew_detail', 'purpose', 'last_port',
+    list_display = [display_name, 'nationality',  'IMO', 'MMSI','crew_total', 'crew_detail', 'purpose', 'last_port',
                     display_port,
                     get_choice_text('船舶状态', 'status'), display_information, get_datetime_text('添加时间', 'create_time'),
                     display_agent]

@@ -49,7 +49,7 @@ class ShipCheckHandler(StarkHandler):
             plan_obj.ship.boat_status_id = 8
             plan_obj.ship.save()
 
-    action_multi_cancel.text = '批量取消'
+    action_multi_cancel.text = '批量驳回'
     action_list = [action_multi_confirm, action_multi_cancel]
 
     def save(self, form, request, is_update, *args, **kwargs):

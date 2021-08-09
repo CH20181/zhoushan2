@@ -113,7 +113,7 @@ class Plan(models.Model):
     title = models.ForeignKey(verbose_name='船舶计划', to='PlanStatus', on_delete=models.CASCADE)
     move_time = models.DateTimeField(verbose_name='计划时间')
     location = models.ForeignKey(verbose_name='船厂/码头', to='Location', on_delete=models.CASCADE, null=True,)
-    next_port = models.CharField(verbose_name='下一港口/泊位', max_length=16)
+    next_port = models.CharField(verbose_name='下一港口/泊位', max_length=16,null=True,blank=True)
     boat_status = models.ForeignKey(verbose_name='船舶申请状态',to='BoatStatus',on_delete=models.CASCADE,null=True,blank=True)
 
     agent = models.ForeignKey(verbose_name='代理', to='UserInfo', on_delete=models.CASCADE, null=True, blank=True,

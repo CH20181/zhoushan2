@@ -18,12 +18,12 @@ class PlanAgentModelForm(StarkModelForm):
         widgets = {
             'move_time': DateTimePickerInput,
         }
+        labels = {'next_port':'泊位','location':'船厂/码头'}
 
     def __init__(self, *args, **kwargs):
         super(PlanAgentModelForm, self).__init__(*args, **kwargs)
         # 此处是只是添加移泊入港入境的计划
         self.fields['title'].queryset = models.PlanStatus.objects.filter(pk__in=[3, 4, 5])
-
 
 class PlanAgentHandler(StarkHandler):
     """
