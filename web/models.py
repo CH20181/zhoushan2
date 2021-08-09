@@ -93,13 +93,14 @@ class Ship(models.Model):
         (2, '离港'),
     )
     status = models.IntegerField(verbose_name='是否在港', default=0, null=True, blank=True, choices=status_type)
+    location = models.ForeignKey(verbose_name='船厂/码头', to='Location', on_delete=models.CASCADE, null=True, blank=True)
     port_in = models.CharField(verbose_name='在港位置', null=True, blank=True, max_length=42)
     display_choice = (
         (1, '未删除'),
         (2, '删除'),
     )
     display = models.IntegerField(verbose_name='是否显示', choices=display_choice, default=1)
-    location = models.ForeignKey(verbose_name='船厂/码头', to='Location', on_delete=models.CASCADE, null=True, blank=True)
+
 
     def __str__(self):
         return self.chinese_name
@@ -126,6 +127,7 @@ class Plan(models.Model):
     )
     display = models.IntegerField(verbose_name='是否显示', choices=display_choice, default=1)
     order = models.ForeignKey(verbose_name='工单',to='Order',null=True,blank=True,on_delete=models.CASCADE)
+    note = models.TextField(verbose_name='备注', blank=True, null=True)
 
     def __str__(self):
         return "%s  %s" % (self.move_time, self.location)

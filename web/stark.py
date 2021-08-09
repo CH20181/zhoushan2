@@ -13,7 +13,7 @@ from web.views.ship_check import ShipCheckHandler
 from web.views.play_plan import PlanPlayHandler
 from web.views.plan_department import PlanDepartmentHandler
 from web.views.remove_boat import ShipRemoveHandler
-
+from web.views.temporary import ShipTemporaryHandler
 
 site.register(models.UserInfo, UserInfoHandler)
 site.register(models.Company, CompanyHandler)
@@ -28,3 +28,4 @@ site.register(models.Plan, ShipCheckHandler, prev='check')
 site.register(models.Plan, PlanPlayHandler, prev='play')
 site.register(models.Plan, PlanDepartmentHandler, prev='department')
 site.register(models.Ship,ShipRemoveHandler,prev='remove')
+site.register(models.Plan,ShipTemporaryHandler,prev='temporary')

@@ -11,11 +11,11 @@ from web import models
 class ShipGetMove(StarkModelForm):
     class Meta:
         model = models.Plan
-        fields = ['title', 'move_time', 'next_port']
+        fields = ['title', 'move_time', 'next_port', 'note']
         widgets = {
             'move_time': DateTimePickerInput,
         }
-        labels = {'next_port':'下一港口'}
+        labels = {'next_port': '下一港口'}
 
     def __init__(self, *args, **kwargs):
         super(ShipGetMove, self).__init__(*args, **kwargs)
@@ -46,6 +46,7 @@ class ShipAgentHandler(StarkHandler):
     代理公司视图
     """
     model_form_class = ShipCheckModelForm
+    has_temporary_btn = True
 
     def display_plan(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
@@ -74,12 +75,13 @@ class ShipAgentHandler(StarkHandler):
 
     def extra_urls(self):
         return [
-            re_path(r'^add/move/(?P<ship_id>\d+)/$', self.wrapper(self.add_move), name=self.get_url_name('get_move')), ]
+            re_path(r'^add/move/(?P<ship_id>\d+)/$', self.wrapper(self.add_move), name=self.get_url_name('get_move')),
+        ]
 
     def get_add_btn(self, request, *args, **kwargs):
         if self.has_add_btn:
             return "<a class='btn btn-primary' href='%s'>添加入港入境船舶</a>" % self.reverse_commens_url(self.get_add_url_name,
-                                                                                            *args, **kwargs)
+                                                                                                  *args, **kwargs)
         return None
 
     def add_move(self, request, *args, **kwargs):

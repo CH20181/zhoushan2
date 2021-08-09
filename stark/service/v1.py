@@ -266,6 +266,22 @@ class StarkHandler(object):
                                                                                             *args, **kwargs)
         return None
 
+    has_temporary_btn = False
+
+    def get_temporary_btn(self, request, *args, **kwargs):
+        """
+        下载在港船舶动态
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if self.has_temporary_btn:
+            return "<a class='btn btn-warning' href='%s'>添加国轮、新造船在港信息</a>" % self.reverse_commens_url(
+                'web_plan_temporary_add',
+                *args, **kwargs)
+        return None
+
     has_update_btn = False
 
     def get_update_btn(self, request, *args, **kwargs):
@@ -452,7 +468,8 @@ class StarkHandler(object):
         # ########## 6. 添加按钮 #########
         add_btn = self.get_add_btn(request, *args, **kwargs)
         update_btn = self.get_update_btn(request, *args, **kwargs)
-        update_today_btn = self.get_update_today_btn(request,*args,**kwargs)
+        update_today_btn = self.get_update_today_btn(request, *args, **kwargs)
+        temporary_btn = self.get_temporary_btn(request, *args, **kwargs)
         # ########## 7. 组合搜索 #########
         search_group_row_list = []
         search_group = self.get_search_group()  # ['gender', 'depart']
@@ -471,6 +488,7 @@ class StarkHandler(object):
                 'add_btn': add_btn,
                 'update_btn': update_btn,
                 'update_today_btn': update_today_btn,
+                'temporary_btn': temporary_btn,
                 'search_list': search_list,
                 'search_value': search_value,
                 'action_dict': action_dict,
