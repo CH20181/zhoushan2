@@ -9,7 +9,8 @@ class GetTemporaryModelForm(StarkModelForm):
     class Meta:
         model = models.Ship
         exclude = ['user', 'boat_status', 'status', 'display', 'last_port', 'note', 'purpose']
-        labels = {'port_in':'在港泊位(锚地填写锚地)'}
+        labels = {'port_in': '在港泊位(锚地填写锚地)'}
+
     def __init__(self, *args, **kwargs):
         super(GetTemporaryModelForm, self).__init__(*args, **kwargs)
         # 此处是添加出港出境计划的视图

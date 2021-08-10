@@ -2,7 +2,7 @@ from django.urls import re_path
 
 from django.db.models import Q
 from stark.forms.widgets import DateTimePickerInput
-from stark.service.v1 import StarkHandler, get_choice_text, get_datetime_text, StarkModelForm
+from stark.service.v1 import StarkHandler,get_datetime_text, StarkModelForm
 from web import models
 
 

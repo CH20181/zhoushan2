@@ -18,7 +18,7 @@ class Create():
         if department == '指挥中心':
             self.new_wb.save(file_name + '\\舟山站%s船情.xlsx' % (self.get_time))
         else:
-            self.new_wb.save(file_name + '\\%s%s船情.xlsx' % (department,self.get_time))
+            self.new_wb.save(file_name + '\\%s%s船情.xlsx' % (department, self.get_time))
 
     @property
     def get_time(self):
@@ -204,7 +204,6 @@ class Create():
             ship_obj = i.ship
             self.write(i, ship_obj)
 
-
     def into_or_out(self, plan_obj, ship_obj):
         """
         判断是移泊、入、出
@@ -224,7 +223,7 @@ class Create():
         type_name = plan_obj.title.id
         if type_name == 3:
             try:
-                return ship_obj.location.department.title + '/n' + plan_obj.location.department.title
+                return ship_obj.location.department.title + '\n' + plan_obj.location.department.title
             except:
                 return ''
         elif type_name == 1 or type_name == 2:
@@ -234,7 +233,8 @@ class Create():
                 return ''
         else:
             return plan_obj.location.department.title
-    def where_port(self,plan_obj,ship_obj):
+
+    def where_port(self, plan_obj, ship_obj):
         type_name = plan_obj.title.id
         # 出港、出境
         if type_name == 1 or type_name == 2:
@@ -248,9 +248,13 @@ class Create():
                 return ship_obj.location.title + '----->' + plan_obj.location.title + plan_obj.next_port
             except:
                 return '暂无'
-            # 出港、出境
+            # 入港、入境
         else:
-            return plan_obj.location.title + plan_obj.next_port
+            try:
+                return plan_obj.location.title + plan_obj.next_port
+            except:
+                return plan_obj.location.title
+
     def write(self, plan_obj, ship_obj):
         self.new_sheet.write(self.number, 0, str(self.number - 1), self.style)
         self.new_sheet.write(self.number, 1, plan_obj.title.title, self.style)
@@ -263,10 +267,10 @@ class Create():
         self.new_sheet.write(self.number, 8, ship_obj.crew_detail, self.style)
         self.new_sheet.write(self.number, 9, ship_obj.goods, self.style)
         self.new_sheet.write(self.number, 10, ship_obj.get_guns_display(), self.style)
-        locale.setlocale(locale.LC_CTYPE, 'chinese')
-        self.new_sheet.write(self.number, 11, plan_obj.move_time.strftime("%m月%d日%H时%M分"), self.style)
+        # locale.setlocale(locale.LC_CTYPE, 'chinese')
+        self.new_sheet.write(self.number, 11, plan_obj.move_time.strftime("%m-%d %H:%M"), self.style)
         try:
-            self.new_sheet.write(self.number, 12, self.where_port(plan_obj,ship_obj), self.style)
+            self.new_sheet.write(self.number, 12, self.where_port(plan_obj, ship_obj), self.style)
         except:
             self.new_sheet.write(self.number, 12, '', self.style)
 
@@ -275,7 +279,7 @@ class Create():
                              ship_obj.user.company.title + ship_obj.user.nickname + ship_obj.user.phone, self.style)
         # 此处应该判断一下，当前是入境、入港
         self.new_sheet.write(self.number, 15, '', self.style)
-        self.new_sheet.write(self.number, 16, self.which_department(plan_obj,ship_obj), self.style)
-        self.new_sheet.write(self.number, 17,'',self.style)
+        self.new_sheet.write(self.number, 16, self.which_department(plan_obj, ship_obj), self.style)
+        self.new_sheet.write(self.number, 17, '', self.style)
         self.new_sheet.write(self.number, 18, plan_obj.note, self.style)
         self.number += 1

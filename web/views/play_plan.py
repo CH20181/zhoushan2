@@ -75,11 +75,24 @@ class PlanPlayHandler(StarkHandler):
         # print(title_id, obj.ship.location)
         # if title_id in title_into_list:
         #     return '%s----->%s' % (obj.ship.location, str(obj.location) + obj.next_port)
+        # 移泊
         if title_id == 3:
-            return '%s----->%s' % (obj.ship.location, str(obj.location) + obj.next_port)
+            try:
+                return '%s----->%s' % (obj.ship.location.title+ obj.ship.port_in, obj.location.title + obj.next_port)
+            except:
+                return '%s----->%s' % (obj.ship.location.title, obj.location.title)
+        # 入港、入境
         elif title_id == 4 or title_id == 5:
-            return '%s----->%s' % (obj.ship.last_port, str(obj.location) + obj.next_port)
-        return '%s----->%s' % (obj.ship.location.title + obj.ship.port_in, obj.next_port)
+            try:
+                return '%s----->%s' % (obj.ship.last_port, obj.location.title)
+            except:
+                return '%s----->%s' % (obj.ship.last_port, obj.location.title + obj.next_port)
+        # 出港、出境
+        else:
+            try:
+                return '%s----->%s' % (obj.ship.location.title + obj.ship.port_in, obj.next_port)
+            except:
+                return '%s----->%s' % (obj.ship.location.title, obj.next_port)
 
     list_display = [StarkHandler.display_checkbox, 'ship', display_IMO, display_MMSI, display_nationality,
                     display_goods, display_purpose, display_last_port, get_datetime_text('时间', 'move_time'),
@@ -151,7 +164,7 @@ class PlanPlayHandler(StarkHandler):
         e = datetime.datetime.now().year
         a = datetime.datetime.now().month
         b = datetime.datetime.now().day
-        c = '%s年%s月%s日' % (e,a, b)
+        c = '%s年%s月%s日' % (e, a, b)
         return c
 
     def update_today(self, request, *args, **kwargs):
@@ -161,9 +174,11 @@ class PlanPlayHandler(StarkHandler):
         two_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         Create(two_path, department, user_id, )
         first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\%s%s船情.xlsx' % (
-            department, self.get_time)
+        department, self.get_time)
         if department == '指挥中心':
-            first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\舟山站%s船情.xlsx'%(self.get_time)
+            first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\舟山站%s船情.xlsx' % (
+                self.get_time)
+
         return self.file_response_download1(first_path)
         # return HttpResponse('ok')
 
