@@ -54,7 +54,6 @@ class ShipCheckHandler(StarkHandler):
 
     def save(self, form, request, is_update, *args, **kwargs):
         user_id = 1  # 审核通过的人
-        print('审核通过的运行')
         plan_choice = form.instance.title_id
         if not is_update:
             form.instance.boat_status = plan_choice
@@ -70,7 +69,10 @@ class ShipCheckHandler(StarkHandler):
             return obj.next_port
         type_obj = obj.title
         if type_obj.title == '入境' or type_obj.title == '入港':
-            return '%s--->%s' %  (obj.ship.last_port,str(obj.location.title + obj.next_port))
+            try:
+                return '%s--->%s' % (obj.ship.last_port, str(obj.location.title + obj.next_port))
+            except:
+                return '%s--->%s' % (obj.ship.last_port, obj.location.title)
         return '%s--->%s' % (obj.ship.location, obj.location)
 
     def display_agent(self, obj=None, is_header=None, *args, **kwargs):

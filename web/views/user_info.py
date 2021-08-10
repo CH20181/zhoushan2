@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 
-from stark.service.v1 import StarkHandler,get_choice_text,StarkModelForm
+from stark.service.v1 import StarkHandler, get_choice_text, StarkModelForm
 from web import models
 from web.utils.md5 import gen_md5
 
@@ -9,16 +9,19 @@ class UserInfoModelForm(StarkModelForm):
     """
     用户model类
     """
+
     class Meta:
         model = models.UserInfo
-        fields = ['name','password','phone','email','company','department']
+        fields = ['name', 'password', 'phone', 'email', 'company', 'department']
+
 
 class UserInfoHandler(StarkHandler):
     """
     用户视图
     """
     model_form_class = UserInfoModelForm
-    list_display = ['name','nickname',get_choice_text('性别','gender'),'phone','company']
+    list_display = ['name', 'nickname', get_choice_text('性别', 'gender'), 'phone', 'company']
+
     def add_view(self, request, *args, **kwargs):
         """
         添加页面
