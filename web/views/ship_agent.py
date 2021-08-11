@@ -28,7 +28,7 @@ class ShipCheckModelForm(StarkModelForm):
         model = models.Ship
         # exclude = ['user', 'boat_status', 'status', 'port_in', 'display', 'location','note']
         exclude = ['user', 'boat_status', 'status', 'display', 'note']
-        labels = {'port_in': '在港泊位(锚地填写锚地)', 'location': '在港船厂/码头'}
+        labels = {'port_in': '在港泊位(锚地填写锚地)', 'location': '船厂/码头(已经在港的必填)'}
 
     def __init__(self, *args, **kwargs):
         super(ShipCheckModelForm, self).__init__(*args, **kwargs)
