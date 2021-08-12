@@ -18,12 +18,13 @@ class PlanAgentModelForm(StarkModelForm):
         widgets = {
             'move_time': DateTimePickerInput,
         }
-        labels = {'next_port':'泊位','location':'船厂/码头'}
+        labels = {'next_port': '泊位', 'location': '船厂/码头'}
 
     def __init__(self, *args, **kwargs):
         super(PlanAgentModelForm, self).__init__(*args, **kwargs)
         # 此处是只是添加移泊入港入境的计划
-        self.fields['title'].queryset = models.PlanStatus.objects.filter(pk__in=[3, 4, 5])
+        self.fields['title'].queryset = models.PlanStatus.objects.filter(pk__in=[3, 4, 5, 6])
+
 
 class PlanAgentHandler(StarkHandler):
     """
@@ -41,12 +42,20 @@ class PlanAgentHandler(StarkHandler):
             if obj:
                 title_id = form.instance.title_id  # 获取船舶计划名称的id
                 form.instance.ship_id = ship_id
-                form.instance.boat_status_id = title_id  # 船舶计划表添加船舶状态信息
                 form.instance.agent_id = user_id  # 添加添加人的信息
-                form.instance.save()
                 form.instance.ship.user_id = user_id
-                form.instance.ship.boat_status_id = title_id  # 在船舶表里添加船舶状态信息
-                form.instance.ship.save()
+                # 申请人证对照
+                if title_id == 6:
+                    form.instance.boat_status_id = 9  # 船舶计划表添加船舶状态信息
+                    form.instance.ship.boat_status_id = 9
+                    form.instance.save()
+                    form.instance.ship.save()
+                else:
+                    form.instance.boat_status_id = title_id
+                    form.instance.ship.boat_status_id = title_id  # 在船舶表里添加船舶状态信息
+                    form.instance.ship.save()
+                    form.instance.save()
+
             else:
                 return HttpResponse('非法输入！！！')
         form.save()  # 如果为更新就直接保存

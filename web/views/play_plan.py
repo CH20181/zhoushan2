@@ -103,7 +103,9 @@ class PlanPlayHandler(StarkHandler):
         pk_list = request.POST.getlist('pk')
         pk_list.reverse()
         # department = request.session['user_info']['department']
+        # 移泊、入境、入港
         status_list = [3, 4, 5]
+        # 出境、出港
         status_list_two = [1, 2]
         for pk in pk_list:
             # 这里后期添加上部门进行过滤
@@ -126,6 +128,8 @@ class PlanPlayHandler(StarkHandler):
                 plan_obj.save()
                 now_port = plan_obj.next_port
                 plan_obj.ship.port_in = now_port
+                # 将船舶表的状态也改变过来
+                plan_obj.ship.boat_status_id = 6
                 title_id = plan_obj.title_id
                 if title_id in status_list:
                     plan_obj.ship.status = 1

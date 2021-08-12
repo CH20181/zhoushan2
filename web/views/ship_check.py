@@ -2,7 +2,7 @@ from django.urls import re_path
 
 from django.db.models import Q
 from stark.forms.widgets import DateTimePickerInput
-from stark.service.v1 import StarkHandler,get_datetime_text, StarkModelForm
+from stark.service.v1 import StarkHandler, get_datetime_text, StarkModelForm
 from web import models
 
 
@@ -25,7 +25,8 @@ class ShipCheckHandler(StarkHandler):
         pk_list = request.POST.getlist('pk')
         user_id = request.session['user_info']['id']
         for pk in pk_list:
-            plan_obj = models.Plan.objects.filter(pk=pk, boat_status__lt=6).first()
+            # plan_obj = models.Plan.objects.filter(pk=pk, boat_status__lt=6).first()
+            plan_obj = models.Plan.objects.filter(pk=pk, boat_status__in=[1, 2, 3, 4, 5, 9]).first()
             if not plan_obj:
                 continue
             plan_obj.boat_status_id = 7
