@@ -31,13 +31,13 @@
 
             {% for field in form %}
               {% if field.label == "中文名"%}
-                <h3 style="color: red;">★★注意：此处为添加船舶基本信息★★</h3>
-                <h3 style="color: red;">★1.船舶基本信息从该条船入港、入境到最后离港只需要添加一次，添加船舶基本信息后，直到该轮离港，每次只需要添加该轮的船舶计划(船情)</h3>
-                <h3 style="color: red;">★2.最后两个船厂、码头和在港泊位是初期使用时，用来给已经在港的船舶添加的。</h3>
-                <h1 style="color: red;">★3.切记，已经在港的船舶，必须添加在港船厂、码头和泊位。否则不予通过</h1>
+                <h4 style="color: black;">★★注意：此处为添加船舶基本信息★★</h4>
+                <h4 style="color: black;">★1.船舶基本信息从该条船入港、入境到最后离港只需要添加一次，添加船舶基本信息后，直到该轮离港，每次只需要添加该轮的船舶计划(船情)</h4>
+                <h4 style="color: black;">★2.如果是入港、入境船舶，<span style="font-size: 30px;color: red">船厂/码头</span>选择最后一项<span style="font-size: 25px;color: red">入港、入境船舶专用</span></h4>
+                <h4 style="color: black;">★3.切记，已经在港的船舶，必须添加在港<span style="font-size: 30px;color: red">船厂/码头</span>和<span style="font-size: 30px;color: red">在港泊位</span>。否则不予通过</h4>
               {% endif %}
                 <div class="form-group">
-                {% if field.label == "船厂/码头(已经在港的必填)" or field.label == "在港泊位(锚地填写锚地)" %}
+                {% if field.label == "船厂/码头" or field.label == "在港泊位(锚地填写锚地)" %}
                 <label class="col-sm-2 control-label" style="color: red;font-size: 18px">★{{ field.label }}★</label>
                   {% else %}
                   <label class="col-sm-2 control-label">{{ field.label }}</label>
