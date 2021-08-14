@@ -11,9 +11,9 @@ class Create():
         self.new_sheet = self.create_xls()
         self.main()
         if department == '指挥中心':
-            self.new_wb.save(file_name + '\\舟山站在港船舶动态.xlsx')
+            self.new_wb.save(file_name + '\\舟山站在港船舶动态.xls')
         else:
-            self.new_wb.save(file_name + '\\%s在港船舶动态.xlsx' % department)
+            self.new_wb.save(file_name + '\\%s在港船舶动态.xls' % department)
 
     def create_xls(self):
         self.new_wb = xlwt.Workbook()

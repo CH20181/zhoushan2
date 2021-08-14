@@ -177,10 +177,10 @@ class PlanPlayHandler(StarkHandler):
         department = request.session['user_info']['department']  # 获取执勤部门
         two_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         Create(two_path, department, user_id, )
-        first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\%s%s船情.xlsx' % (
+        first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\%s%s船情.xls' % (
         department, self.get_time)
         if department == '指挥中心':
-            first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\舟山站%s船情.xlsx' % (
+            first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\舟山站%s船情.xls' % (
                 self.get_time)
 
         return self.file_response_download1(first_path)

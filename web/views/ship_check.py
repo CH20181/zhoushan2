@@ -71,10 +71,31 @@ class ShipCheckHandler(StarkHandler):
         type_obj = obj.title
         if type_obj.title == '入境' or type_obj.title == '入港':
             try:
+                print(obj.location.title,obj.next_port,obj)
                 return '%s--->%s' % (obj.ship.last_port, str(obj.location.title + obj.next_port))
             except:
                 return '%s--->%s' % (obj.ship.last_port, obj.location.title)
-        return '%s--->%s' % (obj.ship.location, obj.location)
+        elif type_obj.title == '人证对照':
+            try:
+                return '%s%s'%(obj.location.title,obj.next_port)
+            except:
+                return obj.location.title
+        else:
+            # print(type_obj.title,obj.location.title,obj.next_port)
+            try:
+                return '%s--->%s' % (obj.ship.location.title,obj.next_port)
+            except:
+                try:
+                    return obj.ship.location.title
+                except:
+                    return '未填写位置'
+
+        # if type_obj.title == '入境' or type_obj.title == '入港':
+        #     try:
+        #         return '%s--->%s' % (obj.ship.last_port, str(obj.location.title + obj.next_port))
+        #     except:
+        #         return '%s--->%s' % (obj.ship.last_port, obj.location.title)
+        # return '%s--->%s' % (obj.ship.location, obj.location)
 
     def display_agent(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:

@@ -16,9 +16,9 @@ class Create():
         self.new_sheet = self.create_xls()
         self.main()
         if department == '指挥中心':
-            self.new_wb.save(file_name + '\\舟山站%s船情.xlsx' % (self.get_time))
+            self.new_wb.save(file_name + '\\舟山站%s船情.xls' % (self.get_time))
         else:
-            self.new_wb.save(file_name + '\\%s%s船情.xlsx' % (department, self.get_time))
+            self.new_wb.save(file_name + '\\%s%s船情.xls' % (department, self.get_time))
 
     @property
     def get_time(self):

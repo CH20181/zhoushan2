@@ -27,18 +27,21 @@ class ShipCheckModelForm(StarkModelForm):
     class Meta:
         model = models.Ship
         # exclude = ['user', 'boat_status', 'status', 'port_in', 'display', 'location','note']
-        exclude = ['user', 'boat_status', 'status', 'display', 'note',]
+        exclude = ['user', 'boat_status', 'status', 'display', 'note', ]
         # fields = ['chinese_name','english_name','nationality','crew_detail','crew_total','goods','IMO','MMSI','purpose','guns','last_port','location']
-        labels = {'port_in': '在港泊位(锚地填写锚地)', 'location': '船厂/码头'}
+        labels = {'port_in': '在港泊位(锚地填写锚地)', 'location': '在港船厂/码头/锚地'}
 
     def __init__(self, *args, **kwargs):
         super(ShipCheckModelForm, self).__init__(*args, **kwargs)
         # 此处是添加出港出境计划的视图
         self.fields['location'].queryset = models.Location.objects.all()
+
     def clean_location(self):
         location = self.cleaned_data.get('location')
         if not location:
             raise ValidationError('请填写该轮在港位置，如果为入境、入港船舶，请选择最后一项“入港、入境船舶专用”')
+        return location
+
     def clean_IMO(self):
         IMO = self.cleaned_data.get('IMO')
         if len(IMO) < 7:
