@@ -32,7 +32,7 @@ class Company(models.Model):
     title = models.CharField(verbose_name='公司名称', max_length=32)
     addr = models.CharField(verbose_name='地址', max_length=64)
     email = models.EmailField(verbose_name='公司邮箱')
-    phone = models.CharField(verbose_name='电话',max_length=20)
+    phone = models.CharField(verbose_name='电话', max_length=20)
 
     def __str__(self):
         return self.title
@@ -84,7 +84,8 @@ class Ship(models.Model):
     user = models.ForeignKey(verbose_name='申报人', blank=True, null=True, to='UserInfo', on_delete=models.CASCADE)
     note = models.TextField(verbose_name='备注', blank=True, null=True)
 
-    boat_status = models.ForeignKey(verbose_name='船舶申请状态', to='BoatStatus', on_delete=models.CASCADE,null=True,blank=True)
+    boat_status = models.ForeignKey(verbose_name='船舶申请状态', to='BoatStatus', on_delete=models.CASCADE, null=True,
+                                    blank=True)
 
     create_time = models.DateTimeField(verbose_name='添加时间', auto_now_add=True, null=True)
     status_type = (
@@ -101,7 +102,6 @@ class Ship(models.Model):
     )
     display = models.IntegerField(verbose_name='是否显示', choices=display_choice, default=1)
 
-
     def __str__(self):
         return self.chinese_name
 
@@ -113,10 +113,10 @@ class Plan(models.Model):
     ship = models.ForeignKey(verbose_name='船名', to='Ship', on_delete=models.CASCADE)
     title = models.ForeignKey(verbose_name='船舶计划', to='PlanStatus', on_delete=models.CASCADE)
     move_time = models.DateTimeField(verbose_name='计划时间')
-    location = models.ForeignKey(verbose_name='船厂/码头', to='Location', on_delete=models.CASCADE, null=True,)
-    next_port = models.CharField(verbose_name='下一港口/泊位', max_length=16,null=True,blank=True)
-    boat_status = models.ForeignKey(verbose_name='船舶申请状态',to='BoatStatus',on_delete=models.CASCADE,null=True,blank=True)
-
+    location = models.ForeignKey(verbose_name='船厂/码头', to='Location', on_delete=models.CASCADE, null=True, )
+    next_port = models.CharField(verbose_name='下一港口/泊位', max_length=16, null=True, blank=True)
+    boat_status = models.ForeignKey(verbose_name='船舶申请状态', to='BoatStatus', on_delete=models.CASCADE, null=True,
+                                    blank=True)
     agent = models.ForeignKey(verbose_name='代理', to='UserInfo', on_delete=models.CASCADE, null=True, blank=True,
                               related_name='agent')
     check_user = models.ForeignKey(verbose_name='审核人', to='UserInfo', on_delete=models.CASCADE, null=True, blank=True,
@@ -126,7 +126,7 @@ class Plan(models.Model):
         (2, '删除'),
     )
     display = models.IntegerField(verbose_name='是否显示', choices=display_choice, default=1)
-    order = models.ForeignKey(verbose_name='工单',to='Order',null=True,blank=True,on_delete=models.CASCADE)
+    order = models.ForeignKey(verbose_name='工单', to='Order', null=True, blank=True, on_delete=models.CASCADE)
     note = models.TextField(verbose_name='备注', blank=True, null=True)
 
     def __str__(self):

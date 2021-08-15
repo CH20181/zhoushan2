@@ -78,17 +78,22 @@ class PlanPlayHandler(StarkHandler):
         # 移泊
         if title_id == 3:
             try:
-                return '%s----->%s' % (obj.ship.location.title+ obj.ship.port_in, obj.location.title + obj.next_port)
+                return '%s----->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title + obj.next_port)
             except:
                 return '%s----->%s' % (obj.ship.location.title, obj.location.title)
         # 入港、入境
         elif title_id == 4 or title_id == 5:
             try:
-                return '%s----->%s' % (obj.ship.last_port, obj.location.title)
-            except:
                 return '%s----->%s' % (obj.ship.last_port, obj.location.title + obj.next_port)
+            except:
+                return '%s----->%s' % (obj.ship.last_port, obj.location.title)
         # 出港、出境
         else:
+            ship_id = obj.ship_id
+            # 此处判断是否为当天入出船舶
+            is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5]).first()
+            if is_into:
+                return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
             try:
                 return '%s----->%s' % (obj.ship.location.title + obj.ship.port_in, obj.next_port)
             except:
@@ -178,7 +183,7 @@ class PlanPlayHandler(StarkHandler):
         two_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         Create(two_path, department, user_id, )
         first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\%s%s船情.xls' % (
-        department, self.get_time)
+            department, self.get_time)
         if department == '指挥中心':
             first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\舟山站%s船情.xls' % (
                 self.get_time)

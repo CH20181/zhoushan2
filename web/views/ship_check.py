@@ -71,7 +71,6 @@ class ShipCheckHandler(StarkHandler):
         type_obj = obj.title
         if type_obj.title == '入境' or type_obj.title == '入港':
             try:
-                print(obj.location.title,obj.next_port,obj)
                 return '%s--->%s' % (obj.ship.last_port, str(obj.location.title + obj.next_port))
             except:
                 return '%s--->%s' % (obj.ship.last_port, obj.location.title)
@@ -80,7 +79,18 @@ class ShipCheckHandler(StarkHandler):
                 return '%s%s'%(obj.location.title,obj.next_port)
             except:
                 return obj.location.title
+        elif type_obj.title == '移泊':
+            try:
+                return '%s--->%s' % (obj.ship.location.title, obj.next_port)
+            except:
+                return '未填写位置'
+        # 出港、出境
         else:
+            ship_id = obj.ship_id
+            # 此处判断是否为当天入出船舶
+            is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5]).first()
+            if is_into:
+                return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
             # print(type_obj.title,obj.location.title,obj.next_port)
             try:
                 return '%s--->%s' % (obj.ship.location.title,obj.next_port)

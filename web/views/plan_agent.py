@@ -18,7 +18,7 @@ class PlanAgentModelForm(StarkModelForm):
         widgets = {
             'move_time': DateTimePickerInput,
         }
-        labels = {'next_port': '泊位', 'location': '船厂/码头'}
+        labels = {'next_port': '泊位', 'location': '船厂/码头/锚地'}
 
     def __init__(self, *args, **kwargs):
         super(PlanAgentModelForm, self).__init__(*args, **kwargs)
