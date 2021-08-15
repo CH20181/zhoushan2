@@ -243,14 +243,24 @@ class Create():
         type_name = plan_obj.title.id
         # 出港、出境
         if type_name == 1 or type_name == 2:
+            ship_id = plan_obj.ship_id
+            # 此处判断是否为当天入出船舶
+            is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5]).first()
+            if is_into:
+                return '%s----->%s' % (is_into.location.title + is_into.next_port, plan_obj.next_port)
             try:
                 return ship_obj.location.title + ship_obj.port_in
             except:
                 return '暂无'
             # 移泊
         elif type_name == 3:
+            plan_obj_two = models.Plan.objects.filter(ship_id=plan_obj.ship_id, title_id=3)
+            plan_obj_number = plan_obj.move_number
             try:
-                return ship_obj.location.title + '----->' + plan_obj.location.title + plan_obj.next_port
+                if plan_obj_number != None:
+                    return '%s--->%s' % (plan_obj_two[plan_obj_number].location.title + plan_obj_two[plan_obj_number].next_port, plan_obj.location.title + plan_obj.next_port)
+                return '%s--->%s' % (ship_obj.location.title + ship_obj.port_in, plan_obj.location.title + plan_obj.next_port)
+                # return ship_obj.location.title + '----->' + plan_obj.location.title + plan_obj.next_port
             except:
                 return '暂无'
             # 入港、入境

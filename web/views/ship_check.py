@@ -76,14 +76,19 @@ class ShipCheckHandler(StarkHandler):
                 return '%s--->%s' % (obj.ship.last_port, obj.location.title)
         elif type_obj.title == '人证对照':
             try:
-                return '%s%s'%(obj.location.title,obj.next_port)
+                return '%s%s' % (obj.location.title, obj.next_port)
             except:
                 return obj.location.title
         elif type_obj.title == '移泊':
+            plan_obj = models.Plan.objects.filter(ship_id=obj.ship_id, title_id=3)
+            plan_obj_number = obj.move_number
+            # print(plan_obj_number,type(plan_obj_number),plan_obj[1])
             try:
-                return '%s--->%s' % (obj.ship.location.title, obj.next_port)
+                if plan_obj_number != None:
+                    return '%s--->%s' % (plan_obj[plan_obj_number].location.title + plan_obj[plan_obj_number].next_port, obj.location.title + obj.next_port)
+                return '%s--->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title + obj.next_port)
             except:
-                return '未填写位置'
+                return '%s--->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title)
         # 出港、出境
         else:
             ship_id = obj.ship_id
@@ -93,7 +98,7 @@ class ShipCheckHandler(StarkHandler):
                 return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
             # print(type_obj.title,obj.location.title,obj.next_port)
             try:
-                return '%s--->%s' % (obj.ship.location.title,obj.next_port)
+                return '%s--->%s' % (obj.ship.location.title, obj.next_port)
             except:
                 try:
                     return obj.ship.location.title

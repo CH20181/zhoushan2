@@ -77,8 +77,13 @@ class PlanPlayHandler(StarkHandler):
         #     return '%s----->%s' % (obj.ship.location, str(obj.location) + obj.next_port)
         # 移泊
         if title_id == 3:
+            plan_obj = models.Plan.objects.filter(ship_id=obj.ship_id, title_id=3)
+            plan_obj_number = obj.move_number
             try:
-                return '%s----->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title + obj.next_port)
+                if plan_obj_number != None:
+                    return '%s--->%s' % (plan_obj[plan_obj_number].location.title + plan_obj[plan_obj_number].next_port, obj.location.title + obj.next_port)
+                return '%s--->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title + obj.next_port)
+                # return '%s----->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title + obj.next_port)
             except:
                 return '%s----->%s' % (obj.ship.location.title, obj.location.title)
         # 入港、入境

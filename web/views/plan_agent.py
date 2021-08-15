@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import re_path
@@ -25,6 +26,17 @@ class PlanAgentModelForm(StarkModelForm):
         # 此处是只是添加移泊入港入境的计划
         self.fields['title'].queryset = models.PlanStatus.objects.filter(pk__in=[3, 4, 5, 6])
 
+    def clean_location(self):
+        location = self.cleaned_data.get('location')
+        if location.id == 83:
+            raise ValidationError('哎！跟你说了好几次了，这个位置就不要填无，锚地有选项的！！！！！')
+        return location
+
+    def clean_next_port(self):
+        next_port = self.cleaned_data.get('next_port')
+        if not next_port:
+            raise ValidationError('请填写泊位。如果是锚地，此处填写锚地两个字就ok了！！')
+        return next_port
 
 class PlanAgentHandler(StarkHandler):
     """
@@ -53,6 +65,14 @@ class PlanAgentHandler(StarkHandler):
                 else:
                     form.instance.boat_status_id = title_id
                     form.instance.ship.boat_status_id = title_id  # 在船舶表里添加船舶状态信息
+                    if title_id == 3:
+                        plan_obj_len = len(models.Plan.objects.filter(title_id=3, ship_id=ship_id))
+                        if plan_obj_len == 1:
+                            form.instance.move_number = 0
+                        elif plan_obj_len == 2:
+                            form.instance.move_number = 1
+                        elif plan_obj_len == 3:
+                            form.instance.move_number = 2
                     form.instance.ship.save()
                     form.instance.save()
 
