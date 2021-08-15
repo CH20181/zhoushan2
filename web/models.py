@@ -150,6 +150,7 @@ class PlanStatus(models.Model):
                     移泊  入境   出境   入港   出港
     """
     title = models.CharField(verbose_name='计划', max_length=32)
+    order = models.IntegerField(verbose_name='排序',blank=True,null=True)
 
     def __str__(self):
         return self.title

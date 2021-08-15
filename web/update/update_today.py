@@ -184,13 +184,13 @@ class Create():
 
     def main(self):
         if self.department == '指挥中心':
-            plan_obj = models.Plan.objects.filter(boat_status=7, move_time__gt=self.get_today_time).order_by('-title')
+            plan_obj = models.Plan.objects.filter(boat_status=7, move_time__gt=self.get_today_time).order_by('title__order')
         else:
             plan_obj = models.Plan.objects.filter(boat_status=7, location__department__title=self.department,
                                                   move_time__year=datetime.datetime.now().year,
                                                   move_time__month=datetime.datetime.now().month,
                                                   move_time__day=datetime.datetime.now().day).order_by(
-                '-title')
+                'title__order')
             obj = models.Plan.objects.filter(boat_status=7, ship__location__department__title=self.department, title=3,
                                              move_time__year=datetime.datetime.now().year,
                                              move_time__month=datetime.datetime.now().month,
