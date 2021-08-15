@@ -16,7 +16,7 @@ class Create():
         self.new_sheet = self.create_xls()
         self.main()
         if department == '指挥中心':
-            self.new_wb.save(file_name + '\\舟山站%s船情.xls' % (self.get_time))
+            self.new_wb.save(file_name + '\\舟山站%s船情.xls' % self.get_time)
         else:
             self.new_wb.save(file_name + '\\%s%s船情.xls' % (department, self.get_time))
 
@@ -190,7 +190,7 @@ class Create():
                                                   move_time__year=datetime.datetime.now().year,
                                                   move_time__month=datetime.datetime.now().month,
                                                   move_time__day=datetime.datetime.now().day).order_by(
-                'title')
+                '-title')
             obj = models.Plan.objects.filter(boat_status=7, ship__location__department__title=self.department, title=3,
                                              move_time__year=datetime.datetime.now().year,
                                              move_time__month=datetime.datetime.now().month,
@@ -221,16 +221,21 @@ class Create():
 
     def which_department(self, plan_obj, ship_obj):
         type_name = plan_obj.title.id
+        # 移泊
         if type_name == 3:
             try:
                 return ship_obj.location.department.title + '\n' + plan_obj.location.department.title
             except:
                 return ''
+            # 出港、出境
         elif type_name == 1 or type_name == 2:
+            if ship_obj.location_id == 83:
+                return plan_obj.location.department.title
             try:
                 return ship_obj.location.department.title
             except:
                 return ''
+        # 入港、入境
         else:
             return plan_obj.location.department.title
 
