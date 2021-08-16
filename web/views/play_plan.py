@@ -1,6 +1,6 @@
 import datetime
 import os
-
+from django.db.models import Q
 from django.http import HttpResponse, FileResponse, Http404
 from django.shortcuts import render, redirect
 from django.urls import re_path
@@ -81,17 +81,26 @@ class PlanPlayHandler(StarkHandler):
             plan_obj_number = obj.move_number
             try:
                 if plan_obj_number != None:
-                    return '%s--->%s' % (plan_obj[plan_obj_number].location.title + plan_obj[plan_obj_number].next_port, obj.location.title + obj.next_port)
-                return '%s--->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title + obj.next_port)
-                # return '%s----->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title + obj.next_port)
+                    return '%s--->%s' % (plan_obj[plan_obj_number].location.title + plan_obj[plan_obj_number].next_port,
+                                         obj.location.title + obj.next_port)
+                return '%s--->%s' % (obj.last_location.title + obj.last_port, obj.location.title + obj.next_port)
             except:
-                ship_today = models.Plan.objects.filter(move_time__year=datetime.datetime.now().year,move_time__month=datetime.datetime.now().month,move_time__day=datetime.datetime.now().day,title_id__in=[4,5]).first()
-                if ship_today:
+                ship_id = obj.ship_id
+                is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5],
+                                                     boat_status_id__in=[1, 2, 3, 4, 5, 7, 8, 9]).first()
+                if is_into:
                     try:
-                        return  '%s----->%s' % (obj.last_location.title,obj.location.title + obj.next_port)
+                        return '%s----->%s' % (
+                            is_into.location.title + is_into.next_port, obj.location.title + obj.next_port)
                     except:
-                        return '%s----->%s' % (obj.last_location.title,obj.location.title)
-                return '%s----->%s' % (obj.ship.location.title, obj.location.title)
+                        return '%s----->%s' % (
+                            is_into.location.title, obj.location.title)
+                try:
+                    return '%s--->%s' % (
+                        obj.ship.location.title + obj.ship.next_port, obj.location.title + obj.next_port)
+                except:
+                    return '%s--->%s' % (obj.ship.location.title, obj.next_port)
+                return '%s--->%s' % (obj.last_location.title, obj.location.title)
         # 入港、入境
         elif title_id == 4 or title_id == 5:
             try:
@@ -102,14 +111,29 @@ class PlanPlayHandler(StarkHandler):
         else:
             ship_id = obj.ship_id
             # 此处判断是否为当天入出船舶
-            # is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5],move_time__year=datetime.datetime.now().year,move_time__month=datetime.datetime.now().month,move_time__day=datetime.datetime.now().day).first()
-            # if is_into:
-            #     return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
-
+            is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5]).first()
+            if is_into:
+                # 如果是当天入境的还要判断是否有移泊的情况
+                is_remove = models.Plan.objects.filter(ship_id=ship_id, title_id=3,
+                                                       boat_status_id__in=[1, 2, 3, 4, 5, 7, 8, 9],
+                                                       move_time__year=datetime.datetime.now().year,
+                                                       move_time__month=datetime.datetime.now().month,
+                                                       move_time__day=datetime.datetime.now().day)
+                if is_remove:
+                    try:
+                        return '%s----->%s' % (
+                        is_remove.last().location.title + is_remove.last().next_port, obj.next_port)
+                    except:
+                        return obj.next_port
+                return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
+            # print(type_obj.title,obj.location.title,obj.next_port)
             try:
-                return '%s----->%s' % (obj.last_location.title, obj.next_port)
+                return '%s--->%s' % (obj.last_location.title + obj.last_port, obj.next_port)
             except:
-                return '%s----->%s' % (obj.ship.location.title, obj.next_port)
+                try:
+                    return obj.ship.location.title
+                except:
+                    return '未填写位置'
 
     list_display = [StarkHandler.display_checkbox, 'ship', display_IMO, display_MMSI, display_nationality,
                     display_goods, display_purpose, display_last_port, get_datetime_text('时间', 'move_time'),
@@ -126,32 +150,59 @@ class PlanPlayHandler(StarkHandler):
         status_list_two = [1, 2]
         for pk in pk_list:
             # 这里后期添加上部门进行过滤
-            plan_obj = models.Plan.objects.filter(pk=pk, boat_status_id=7,
-                                                  location__department=user_obj.department).first()
+            a = Q(location__department=user_obj.department)
+            b = Q(last_location__department=user_obj.department)
+            plan_obj = models.Plan.objects.filter(pk=pk, boat_status_id=7).filter(a | b).first()
             # 这里有个问题，过滤的条件不对，应该将当前船舶的历史申报船情进行过滤
             # 将本次船的只有有没有完成的入港、入境计划，就不能完成。
             ship_id = models.Plan.objects.filter(pk=pk).first().ship
             # print(ship_id)
             # into_obj = models.Plan.objects.filter(title_id__in=[1, 2, 4, 5], boat_status_id=7).first()
-            into_obj = models.Plan.objects.filter(title_id__in=[1, 2, 4, 5], boat_status_id=7,
+            into_obj = models.Plan.objects.filter(title_id__in=[4, 5], boat_status_id=7,
                                                   ship_id=ship_id.pk).first()
             if into_obj and plan_obj != into_obj:  # 如果有入港入境船情，必须先完成入港入境船情，否则无法完成
                 continue
             if plan_obj:
                 location = plan_obj.location
-                if location:
-                    plan_obj.ship.location = location
+                # 这个是判断今天是否有出港、出境计划
+                is_complete = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[1, 2]).first()
+                if is_complete:
+                    # is_over是出港、出境的船舶对象
+                    is_over = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[1, 2], boat_status=7).first()
+                    if plan_obj == is_over:
+                        plan_obj.ship.location = plan_obj.last_location
+                        now_port = plan_obj.next_port
+                        plan_obj.ship.port_in = now_port
+                        title_id = plan_obj.title_id
+                        if title_id in status_list:
+                            plan_obj.ship.status = 1
+                        elif title_id in status_list_two:
+                            plan_obj.ship.status = 2
+                    elif location and is_over:
+                        plan_obj.ship.location = location
+                        now_port = plan_obj.next_port
+                        plan_obj.ship.port_in = now_port
+                        title_id = plan_obj.title_id
+                        if title_id in status_list:
+                            plan_obj.ship.status = 1
+                        elif title_id in status_list_two:
+                            plan_obj.ship.status = 2
+                    else:
+                        pass
+                else:
+                    if location:
+                        plan_obj.ship.location = location
+                        now_port = plan_obj.next_port
+                        plan_obj.ship.port_in = now_port
+                        title_id = plan_obj.title_id
+                        if title_id in status_list:
+                            plan_obj.ship.status = 1
+                        elif title_id in status_list_two:
+                            plan_obj.ship.status = 2
                 plan_obj.boat_status_id = 6
                 plan_obj.save()
-                now_port = plan_obj.next_port
-                plan_obj.ship.port_in = now_port
                 # 将船舶表的状态也改变过来
                 plan_obj.ship.boat_status_id = 6
-                title_id = plan_obj.title_id
-                if title_id in status_list:
-                    plan_obj.ship.status = 1
-                elif title_id in status_list_two:
-                    plan_obj.ship.status = 2
                 plan_obj.ship.save()
 
     action_multi_complete.text = '完成'
@@ -239,4 +290,7 @@ class PlanPlayHandler(StarkHandler):
         obj = request.obj
         if obj.department == '指挥中心':
             return self.model_class.objects.filter(boat_status=7)
-        return self.model_class.objects.filter(boat_status=7, location__department=obj.department)
+        a = Q(location__department=obj.department)
+        b = Q(last_location__department=obj.department)
+        # return self.model_class.objects.filter(boat_status=7, location__department=obj.department)
+        return self.model_class.objects.filter(boat_status=7).filter(a | b)

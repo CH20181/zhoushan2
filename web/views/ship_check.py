@@ -69,11 +69,14 @@ class ShipCheckHandler(StarkHandler):
             return '申请停靠地点'
         location = obj.location
         if not location:  # 如果没有值得话，说明是出港、出境情况
-            return obj.next_port
+            try:
+                return '%s----->%s' % (obj.last_location.title + obj.last_port, obj.next_port)
+            except:
+                return obj.next_port
         type_obj = obj.title
         if type_obj.title == '入境' or type_obj.title == '入港':
             try:
-                return '%s--->%s' % (obj.ship.last_port, str(obj.location.title + obj.next_port))
+                return '%s--->%s' % (obj.ship.last_port, obj.location.title + obj.next_port)
             except:
                 return '%s--->%s' % (obj.ship.last_port, obj.location.title)
         elif type_obj.title == '人证对照':
@@ -89,7 +92,7 @@ class ShipCheckHandler(StarkHandler):
                 if plan_obj_number != None:
                     return '%s--->%s' % (plan_obj[plan_obj_number].location.title + plan_obj[plan_obj_number].next_port,
                                          obj.location.title + obj.next_port)
-                return '%s--->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title + obj.next_port)
+                return '%s--->%s' % (obj.last_location.title + obj.last_port, obj.location.title + obj.next_port)
             except:
                 ship_id = obj.ship_id
                 is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5],
@@ -118,13 +121,14 @@ class ShipCheckHandler(StarkHandler):
                 is_remove = models.Plan.objects.filter(ship_id=ship_id, title_id=3,boat_status_id__in=[1, 2, 3, 4, 5, 7, 8, 9],move_time__year=datetime.datetime.now().year,move_time__month=datetime.datetime.now().month,move_time__day=datetime.datetime.now().day)
                 if is_remove:
                     try:
-                        return '%s----->%s' % (is_remove.last().location.title,obj.next_port)
+                        return '%s----->%s' % (is_remove.last().location.title + is_remove.last().last_port,obj.next_port)
                     except:
                         return obj.next_port
                 return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
             # print(type_obj.title,obj.location.title,obj.next_port)
             try:
-                return '%s--->%s' % (obj.last_location.title, obj.next_port)
+
+                return '%s--->%s' % (obj.last_location.title+obj.last_port, obj.next_port)
             except:
                 try:
                     return obj.ship.location.title

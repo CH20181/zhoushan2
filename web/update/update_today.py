@@ -1,6 +1,5 @@
 import datetime
-import locale
-
+from django.db.models import Q
 from django.http import HttpResponse
 from itertools import chain
 from web import models
@@ -187,24 +186,15 @@ class Create():
             plan_obj = models.Plan.objects.filter(boat_status=7, move_time__gt=self.get_today_time).order_by(
                 'title__order')
         else:
-            plan_obj = models.Plan.objects.filter(boat_status=7, location__department__title=self.department,
+            a = Q(location__department__title=self.department)
+            b = Q(last_location__department__title=self.department)
+            plan_obj = models.Plan.objects.filter(boat_status=7,
                                                   move_time__year=datetime.datetime.now().year,
                                                   move_time__month=datetime.datetime.now().month,
-                                                  move_time__day=datetime.datetime.now().day).order_by(
+                                                  move_time__day=datetime.datetime.now().day).filter(a | b).order_by(
                 'title__order')
-            # obj = models.Plan.objects.filter(boat_status=7, ship__location__department__title=self.department, title=3,
-            #                                  move_time__year=datetime.datetime.now().year,
-            #                                  move_time__month=datetime.datetime.now().month,
-            #                                  move_time__day=datetime.datetime.now().day).order_by(
-            #     'title__order')
-            # 将上一个泊位的情况也统计出来
-            obj2 = models.Plan.objects.filter(boat_status=7, last_location__department__title=self.department,
-                                              move_time__year=datetime.datetime.now().year,
-                                              move_time__month=datetime.datetime.now().month,
-                                              move_time__day=datetime.datetime.now().day).order_by(
-                'title__order')
-            # 将两个QuerySet对象合并为一个
-            plan_obj = chain(plan_obj, obj2)
+
+            # plan_obj = chain(plan_obj, obj2)
 
         if not plan_obj:
             return HttpResponse('别急小伙子，船情还没出来！！！！！')
@@ -266,9 +256,7 @@ class Create():
             plan_obj_number = plan_obj.move_number
             try:
                 if plan_obj_number is not None:
-                    return '%s--->%s' % (
-                    plan_obj_two[plan_obj_number].location.title + plan_obj_two[plan_obj_number].next_port,
-                    plan_obj.location.title + plan_obj.next_port)
+                    return '%s--->%s' % (plan_obj_two[plan_obj_number].location.title + plan_obj_two[plan_obj_number].next_port,plan_obj.location.title + plan_obj.next_port)
                 return '%s--->%s' % (plan_obj.last_location.title, plan_obj.location.title + plan_obj.next_port)
                 # return ship_obj.location.title + '----->' + plan_obj.location.title + plan_obj.next_port
             except:

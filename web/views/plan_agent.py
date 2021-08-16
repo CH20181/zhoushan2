@@ -15,7 +15,7 @@ class PlanAgentModelForm(StarkModelForm):
 
     class Meta:
         model = models.Plan
-        exclude = ['ship', 'boat_status', 'agent', 'check_user', 'complete', 'display', 'order','move_number','last_location']
+        exclude = ['ship', 'boat_status', 'agent', 'check_user', 'complete', 'display', 'order','move_number','last_location','last_port']
         widgets = {
             'move_time': DateTimePickerInput,
         }
@@ -73,11 +73,14 @@ class PlanAgentHandler(StarkHandler):
                             form.instance.move_number = 1
                         elif plan_obj_len == 3:
                             form.instance.move_number = 2
+                    # 移泊、入港、入境
                     plan_obj = models.Plan.objects.filter(ship_id=ship_id, title__in=[3, 4, 5])
                     try:
                         form.instance.last_location_id = plan_obj.last().location_id
+                        form.instance.last_port = plan_obj.last().next_port
                     except:
                         form.instance.last_location_id = models.Ship.objects.filter(pk=ship_id).first().location_id
+                        form.instance.last_port = ''
                     form.instance.ship.save()
                     form.instance.save()
 
