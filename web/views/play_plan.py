@@ -85,6 +85,12 @@ class PlanPlayHandler(StarkHandler):
                 return '%s--->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title + obj.next_port)
                 # return '%s----->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title + obj.next_port)
             except:
+                ship_today = models.Plan.objects.filter(move_time__year=datetime.datetime.now().year,move_time__month=datetime.datetime.now().month,move_time__day=datetime.datetime.now().day,title_id__in=[4,5]).first()
+                if ship_today:
+                    try:
+                        return  '%s----->%s' % (obj.last_location.title,obj.location.title + obj.next_port)
+                    except:
+                        return '%s----->%s' % (obj.last_location.title,obj.location.title)
                 return '%s----->%s' % (obj.ship.location.title, obj.location.title)
         # 入港、入境
         elif title_id == 4 or title_id == 5:
@@ -96,11 +102,12 @@ class PlanPlayHandler(StarkHandler):
         else:
             ship_id = obj.ship_id
             # 此处判断是否为当天入出船舶
-            is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5]).first()
-            if is_into:
-                return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
+            # is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5],move_time__year=datetime.datetime.now().year,move_time__month=datetime.datetime.now().month,move_time__day=datetime.datetime.now().day).first()
+            # if is_into:
+            #     return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
+
             try:
-                return '%s----->%s' % (obj.ship.location.title + obj.ship.port_in, obj.next_port)
+                return '%s----->%s' % (obj.last_location.title, obj.next_port)
             except:
                 return '%s----->%s' % (obj.ship.location.title, obj.next_port)
 

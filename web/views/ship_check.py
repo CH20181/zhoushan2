@@ -1,3 +1,5 @@
+import datetime
+
 from django.urls import re_path
 
 from django.db.models import Q
@@ -82,23 +84,47 @@ class ShipCheckHandler(StarkHandler):
         elif type_obj.title == '移泊':
             plan_obj = models.Plan.objects.filter(ship_id=obj.ship_id, title_id=3)
             plan_obj_number = obj.move_number
-            # print(plan_obj_number,type(plan_obj_number),plan_obj[1])
+            # print(plan_obj_number,)
             try:
                 if plan_obj_number != None:
-                    return '%s--->%s' % (plan_obj[plan_obj_number].location.title + plan_obj[plan_obj_number].next_port, obj.location.title + obj.next_port)
+                    return '%s--->%s' % (plan_obj[plan_obj_number].location.title + plan_obj[plan_obj_number].next_port,
+                                         obj.location.title + obj.next_port)
                 return '%s--->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title + obj.next_port)
             except:
-                return '%s--->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title)
+                ship_id = obj.ship_id
+                is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5],
+                                                     boat_status_id__in=[1, 2, 3, 4, 5, 7, 8, 9]).first()
+                if is_into:
+                    try:
+                        return '%s----->%s' % (
+                            is_into.location.title + is_into.next_port, obj.location.title + obj.next_port)
+                    except:
+                        return '%s----->%s' % (
+                            is_into.location.title, obj.location.title)
+                try:
+                    return '%s--->%s' % (
+                        obj.ship.location.title + obj.ship.next_port, obj.location.title + obj.next_port)
+                except:
+                    return '%s--->%s' % (obj.ship.location.title, obj.next_port)
+                return '%s--->%s' % (obj.last_location.title, obj.location.title)
+                # return '%s--->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title)
         # 出港、出境
         else:
             ship_id = obj.ship_id
             # 此处判断是否为当天入出船舶
             is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5]).first()
             if is_into:
+                # 如果是当天入境的还要判断是否有移泊的情况
+                is_remove = models.Plan.objects.filter(ship_id=ship_id, title_id=3,boat_status_id__in=[1, 2, 3, 4, 5, 7, 8, 9],move_time__year=datetime.datetime.now().year,move_time__month=datetime.datetime.now().month,move_time__day=datetime.datetime.now().day)
+                if is_remove:
+                    try:
+                        return '%s----->%s' % (is_remove.last().location.title,obj.next_port)
+                    except:
+                        return obj.next_port
                 return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
             # print(type_obj.title,obj.location.title,obj.next_port)
             try:
-                return '%s--->%s' % (obj.ship.location.title, obj.next_port)
+                return '%s--->%s' % (obj.last_location.title, obj.next_port)
             except:
                 try:
                     return obj.ship.location.title

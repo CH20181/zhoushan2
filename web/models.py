@@ -129,6 +129,7 @@ class Plan(models.Model):
     order = models.ForeignKey(verbose_name='工单', to='Order', null=True, blank=True, on_delete=models.CASCADE)
     note = models.TextField(verbose_name='备注', blank=True, null=True)
     move_number = models.IntegerField(verbose_name='移泊次数', blank=True, null=True)
+    last_location = models.ForeignKey(verbose_name='上一次位置',to='Location', on_delete=models.CASCADE, null=True,blank=True,related_name='locations')
 
     def __str__(self):
         return "%s  %s" % (self.move_time, self.location)

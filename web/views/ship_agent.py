@@ -35,7 +35,11 @@ class ShipCheckModelForm(StarkModelForm):
         super(ShipCheckModelForm, self).__init__(*args, **kwargs)
         # 此处是添加出港出境计划的视图
         self.fields['location'].queryset = models.Location.objects.all()
-
+    def clean_port_in(self):
+        port_in = self.cleaned_data.get('port_in')
+        if port_in:
+            return port_in
+        raise ValidationError('请输入在港泊位，在锚地直接填写锚地两个字')
     def clean_location(self):
         location = self.cleaned_data.get('location')
         if not location:
@@ -134,6 +138,11 @@ class ShipAgentHandler(StarkHandler):
                 #     form.instance.location_id = plan_obj_id
                 #     form.save()
                 form.instance.boat_status_id = title_num  # 船舶状态的id
+                plan_obj = models.Plan.objects.filter(ship_id=ship_id, title__in=[3, 4, 5])
+                try:
+                    form.instance.last_location_id = plan_obj.last().location_id
+                except:
+                    form.instance.last_location_id = models.Ship.objects.filter(pk=ship_id).first().location_id
                 form.save()
                 form.instance.ship.boat_status_id = title_num
                 form.instance.ship.agent_id = user_id

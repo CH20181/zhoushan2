@@ -184,19 +184,27 @@ class Create():
 
     def main(self):
         if self.department == '指挥中心':
-            plan_obj = models.Plan.objects.filter(boat_status=7, move_time__gt=self.get_today_time).order_by('title__order')
+            plan_obj = models.Plan.objects.filter(boat_status=7, move_time__gt=self.get_today_time).order_by(
+                'title__order')
         else:
             plan_obj = models.Plan.objects.filter(boat_status=7, location__department__title=self.department,
                                                   move_time__year=datetime.datetime.now().year,
                                                   move_time__month=datetime.datetime.now().month,
                                                   move_time__day=datetime.datetime.now().day).order_by(
                 'title__order')
-            obj = models.Plan.objects.filter(boat_status=7, ship__location__department__title=self.department, title=3,
-                                             move_time__year=datetime.datetime.now().year,
-                                             move_time__month=datetime.datetime.now().month,
-                                             move_time__day=datetime.datetime.now().day)
+            # obj = models.Plan.objects.filter(boat_status=7, ship__location__department__title=self.department, title=3,
+            #                                  move_time__year=datetime.datetime.now().year,
+            #                                  move_time__month=datetime.datetime.now().month,
+            #                                  move_time__day=datetime.datetime.now().day).order_by(
+            #     'title__order')
+            # 将上一个泊位的情况也统计出来
+            obj2 = models.Plan.objects.filter(boat_status=7, last_location__department__title=self.department,
+                                              move_time__year=datetime.datetime.now().year,
+                                              move_time__month=datetime.datetime.now().month,
+                                              move_time__day=datetime.datetime.now().day).order_by(
+                'title__order')
             # 将两个QuerySet对象合并为一个
-            plan_obj = chain(plan_obj, obj)
+            plan_obj = chain(plan_obj, obj2)
 
         if not plan_obj:
             return HttpResponse('别急小伙子，船情还没出来！！！！！')
@@ -224,7 +232,7 @@ class Create():
         # 移泊
         if type_name == 3:
             try:
-                return ship_obj.location.department.title + '\n' + plan_obj.location.department.title
+                return plan_obj.last_location.department.title + '\n' + plan_obj.location.department.title
             except:
                 return ''
             # 出港、出境
@@ -257,9 +265,11 @@ class Create():
             plan_obj_two = models.Plan.objects.filter(ship_id=plan_obj.ship_id, title_id=3)
             plan_obj_number = plan_obj.move_number
             try:
-                if plan_obj_number != None:
-                    return '%s--->%s' % (plan_obj_two[plan_obj_number].location.title + plan_obj_two[plan_obj_number].next_port, plan_obj.location.title + plan_obj.next_port)
-                return '%s--->%s' % (ship_obj.location.title + ship_obj.port_in, plan_obj.location.title + plan_obj.next_port)
+                if plan_obj_number is not None:
+                    return '%s--->%s' % (
+                    plan_obj_two[plan_obj_number].location.title + plan_obj_two[plan_obj_number].next_port,
+                    plan_obj.location.title + plan_obj.next_port)
+                return '%s--->%s' % (plan_obj.last_location.title, plan_obj.location.title + plan_obj.next_port)
                 # return ship_obj.location.title + '----->' + plan_obj.location.title + plan_obj.next_port
             except:
                 return '暂无'
