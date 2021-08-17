@@ -83,6 +83,10 @@ class PlanAgentHandler(StarkHandler):
                     except:
                         form.instance.last_location_id = models.Ship.objects.filter(pk=ship_id).first().location_id
                         form.instance.last_port = ''
+                    if title_id == 4 or title_id ==5:
+                        alive = models.Ship.objects.filter(pk=ship_id).first().location_id
+                        if alive != 83:
+                            return HttpResponse('该船已经入港！！请勿重复添加入港、入境计划')
                     form.instance.ship.save()
                     form.instance.save()
 

@@ -128,13 +128,17 @@ class ShipAgentHandler(StarkHandler):
                 form.instance.ship_id = ship_id
                 form.instance.agent_id = user_id
                 form.instance.boat_status_id = title_num  # 船舶状态的id
-                plan_obj = models.Plan.objects.filter(ship_id=ship_id, title__in=[3, 4, 5])
-                try:
-                    form.instance.last_location_id = plan_obj.last().location_id
-                    form.instance.last_port = plan_obj.last().next_port
-                except:
+                plan_obj = models.Plan.objects.filter(ship_id=ship_id, title__in=[3, 4, 5],boat_status__in=[3,4,5])
+                if plan_obj:
+                    try:
+                        form.instance.last_location_id = plan_obj.last().location_id
+                        form.instance.last_port = plan_obj.last().next_port
+                    except:
+                        form.instance.last_location_id = models.Ship.objects.filter(pk=ship_id).first().location_id
+                        form.instance.last_port = ''
+                else:
                     form.instance.last_location_id = models.Ship.objects.filter(pk=ship_id).first().location_id
-                    form.instance.last_port = ''
+                    form.instance.last_port = models.Ship.objects.filter(pk=ship_id).first().port_in
                 form.save()
                 form.instance.ship.boat_status_id = title_num
                 form.instance.ship.agent_id = user_id
