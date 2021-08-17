@@ -247,7 +247,7 @@ class Create():
             if is_into:
                 return '%s----->%s' % (is_into.location.title + is_into.next_port, plan_obj.next_port)
             try:
-                return ship_obj.location.title + ship_obj.port_in
+                return plan_obj.last_location.title + ship_obj.port_in
             except:
                 return '暂无'
             # 移泊
