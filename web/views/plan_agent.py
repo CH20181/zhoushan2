@@ -36,6 +36,8 @@ class PlanAgentModelForm(StarkModelForm):
         next_port = self.cleaned_data.get('next_port')
         if not next_port:
             raise ValidationError('请填写泊位。如果是锚地，此处填写锚地两个字就ok了！！')
+        if '锚地' in next_port:
+            return ''
         return next_port
 
 class PlanAgentHandler(StarkHandler):
