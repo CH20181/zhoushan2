@@ -175,9 +175,9 @@ class Create():
         all_plan_str = ''
         for i in plan_obj:
             if i.title.id == 4 or i.title.id == 5:
-                all_plan_str += i.move_time.strftime(
-                    '%Y-%m-%d %H:%M') + i.ship.last_port + '----->' + i.ship.location.title + i.next_port
+                # all_plan_str += i.move_time.strftime('%Y-%m-%d %H:%M') + i.ship.last_port + '----->' + i.ship.location.title + i.next_port
+                all_plan_str += i.move_time.strftime('%Y-%m-%d %H:%M') + i.ship.last_port + '----->' + i.location.title + i.next_port
             elif i.title.id == 3:
-                all_plan_str += '\n' + i.move_time.strftime(
-                    '%Y-%m-%d %H:%M') + i.ship.location.title + '----->' + i.location.title + i.next_port
+                # all_plan_str += '\n' + i.move_time.strftime('%Y-%m-%d %H:%M') + i.ship.location.title + '----->' + i.location.title + i.next_port
+                all_plan_str += '\n' + i.move_time.strftime('%Y-%m-%d %H:%M') + i.last_location.title + i.last_port + '----->' + i.location.title + i.next_port
         return all_plan_str
