@@ -6,8 +6,8 @@ from django.utils.safestring import mark_safe
 from stark.forms.widgets import DateTimePickerInput
 from stark.service.v1 import StarkHandler, get_choice_text, get_datetime_text, StarkModelForm
 from web import models
-
-
+import datetime
+from dateutil.relativedelta import relativedelta
 class PlanAgentModelForm(StarkModelForm):
     """
     代理添加编辑船情计划的model
@@ -15,7 +15,8 @@ class PlanAgentModelForm(StarkModelForm):
 
     class Meta:
         model = models.Plan
-        exclude = ['ship', 'boat_status', 'agent', 'check_user', 'complete', 'display', 'order','move_number','last_location','last_port']
+        exclude = ['ship', 'boat_status', 'agent', 'check_user', 'complete', 'display', 'order', 'move_number',
+                   'last_location', 'last_port']
         widgets = {
             'move_time': DateTimePickerInput,
         }
@@ -39,6 +40,14 @@ class PlanAgentModelForm(StarkModelForm):
         if '锚地' in next_port:
             return ''
         return next_port
+
+    def clean_move_time(self):
+        move_time = self.cleaned_data.get('move_time')
+        tomorrow = datetime.date.today() + relativedelta(days=2)
+        if tomorrow > move_time.date():
+            return move_time
+        raise ValidationError('只能申报今天或者明天的船情！！！！')
+
 
 class PlanAgentHandler(StarkHandler):
     """
@@ -83,7 +92,7 @@ class PlanAgentHandler(StarkHandler):
                     except:
                         form.instance.last_location_id = models.Ship.objects.filter(pk=ship_id).first().location_id
                         form.instance.last_port = ''
-                    if title_id == 4 or title_id ==5:
+                    if title_id == 4 or title_id == 5:
                         alive = models.Ship.objects.filter(pk=ship_id).first().location_id
                         if alive != 83:
                             return HttpResponse('该船已经入港！！请勿重复添加入港、入境计划')
