@@ -163,6 +163,12 @@ class PlanAgentHandler(StarkHandler):
         if obj:
             obj.update(display=2)
             return redirect(origin_list_url)
+        try:
+            ship_obj = models.Ship.objects.filter(plan=models.Plan.objects.filter(pk=pk).first()).first()
+            ship_obj.boat_status_id = None
+            ship_obj.save()
+        except:
+            pass
         self.model_class.objects.filter(pk=pk).delete()
         return redirect(origin_list_url)
 

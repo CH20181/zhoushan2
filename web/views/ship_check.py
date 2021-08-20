@@ -152,6 +152,11 @@ class ShipCheckHandler(StarkHandler):
             return 'IMO'
         return obj.ship.IMO
 
+    def display_apply_time(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return '申报时间'
+        return obj.apply.strftime("%m-%d %H:%M")
+
     has_add_btn = False
 
     def get_urls(self):
@@ -179,6 +184,6 @@ class ShipCheckHandler(StarkHandler):
             value.extend(self.list_display)
         return value
 
-    list_display = [StarkHandler.display_checkbox, 'ship', display_imo, 'title',
+    list_display = [StarkHandler.display_checkbox, 'ship', display_imo, 'title',display_apply_time,
                     get_datetime_text('计划时间', 'move_time', time_format='%m-%d %H:%M'), display_location,
                     'boat_status', display_agent]

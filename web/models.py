@@ -131,6 +131,7 @@ class Plan(models.Model):
     move_number = models.IntegerField(verbose_name='移泊次数', blank=True, null=True)
     last_location = models.ForeignKey(verbose_name='上一次位置',to='Location', on_delete=models.CASCADE, null=True,blank=True,related_name='locations')
     last_port = models.CharField(verbose_name='上一次的位置',null=True,blank=True,max_length=25)
+    apply = models.DateTimeField(verbose_name='申报时间',blank=True,auto_now_add=True,null=True)
     def __str__(self):
         return "%s  %s" % (self.move_time, self.location)
 
