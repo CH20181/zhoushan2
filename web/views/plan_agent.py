@@ -90,8 +90,13 @@ class PlanAgentHandler(StarkHandler):
                         form.instance.last_location_id = plan_obj.last().location_id
                         form.instance.last_port = plan_obj.last().next_port
                     except:
-                        form.instance.last_location_id = models.Ship.objects.filter(pk=ship_id).first().location_id
-                        form.instance.last_port = ''
+                        # 修复移泊出现没有具体泊位
+                        try:
+                            form.instance.last_location_id = models.Ship.objects.filter(pk=ship_id).first().location_id
+                            form.instance.last_port = models.Ship.objects.filter(pk=ship_id).first().port_in
+                        except:
+                            form.instance.last_location_id = models.Ship.objects.filter(pk=ship_id).first().location_id
+                            form.instance.last_port = ''
                     if title_id == 4 or title_id == 5:
                         alive = models.Ship.objects.filter(pk=ship_id).first().location_id
                         if alive != 83:

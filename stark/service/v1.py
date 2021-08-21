@@ -256,7 +256,7 @@ class StarkHandler(object):
             value.append(type(self).display_edit_del)
         return value
 
-    per_page_count = 10
+    per_page_count = 20
 
     has_add_btn = True
 
