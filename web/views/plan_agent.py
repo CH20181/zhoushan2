@@ -35,11 +35,14 @@ class PlanAgentModelForm(StarkModelForm):
 
     def clean_next_port(self):
         next_port = self.cleaned_data.get('next_port')
-        if not next_port:
-            raise ValidationError('请填写泊位。如果是锚地，此处填写锚地两个字就ok了！！')
-        if '锚地' in next_port:
-            return ''
-        return next_port
+        if next_port:
+            return next_port
+        raise ValidationError('请输入在港泊位，锚地填写无')
+        # if not next_port:
+        #     raise ValidationError('请填写泊位。如果是锚地，此处填写锚地两个字就ok了！！')
+        # if '锚地' in next_port:
+        #     return ''
+        # return next_port
 
     def clean_move_time(self):
         move_time = self.cleaned_data.get('move_time')

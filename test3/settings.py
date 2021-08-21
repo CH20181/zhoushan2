@@ -77,26 +77,26 @@ WSGI_APPLICATION = 'test3.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'abc',
-        'HOST': '47.99.168.84',
-        'PORT': '3306',
-        'USER': 'root',
-        'PASSWORD': '123',
-    }
-}
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
 #         'NAME': 'abc',
-#         'HOST': '127.0.0.1',
+#         'HOST': '47.99.168.84',
 #         'PORT': '3306',
 #         'USER': 'root',
 #         'PASSWORD': '123',
 #     }
 # }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'abc',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
+        'USER': 'root',
+        'PASSWORD': '123',
+    }
+}
 # 数据库没有登录成功是因为远程被限制访问数据库
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

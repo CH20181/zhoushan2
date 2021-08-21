@@ -39,10 +39,8 @@ class ShipCheckModelForm(StarkModelForm):
     def clean_port_in(self):
         port_in = self.cleaned_data.get('port_in')
         if port_in:
-            if '锚地' in port_in:
-                return ''
             return port_in
-        raise ValidationError('请输入在港泊位，在锚地直接填写锚地两个字')
+        raise ValidationError('请输入在港泊位，锚地填写无')
 
     def clean_location(self):
         location = self.cleaned_data.get('location')
