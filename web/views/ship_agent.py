@@ -126,7 +126,8 @@ class ShipAgentHandler(StarkHandler):
                 form.instance.ship_id = ship_id
                 form.instance.agent_id = user_id
                 form.instance.boat_status_id = title_num  # 船舶状态的id
-                plan_obj = models.Plan.objects.filter(ship_id=ship_id, title__in=[3, 4, 5],boat_status__in=[3,4,5])
+                # plan_obj = models.Plan.objects.filter(ship_id=ship_id, title__in=[3, 4, 5],boat_status__in=[3,4,5])
+                plan_obj = models.Plan.objects.filter(ship_id=ship_id, title__in=[3, 4, 5])
                 if plan_obj:
                     try:
                         form.instance.last_location_id = plan_obj.last().location_id

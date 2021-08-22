@@ -58,24 +58,23 @@
                     {{ add_btn|safe }}
                 </div>
             {% endif %}
-        {% if update_btn %}
+            {% if update_btn %}
                 <div style="margin: 5px 0;float: left">
                     {{ update_btn|safe }}
                 </div>
             {% endif %}
-        {% if update_today_btn %}
+            {% if update_today_btn %}
                 <div style="margin: 5px 0;float: left">
                     {{ update_today_btn|safe }}
                 </div>
             {% endif %}
-        {% if temporary_btn %}
+            {% if temporary_btn %}
                 <div style="margin: 5px 10px;float: left">
                     {{ temporary_btn|safe }}
                 </div>
             {% endif %}
 
-
-            <table class="table table-bordered table-striped table-hover">
+                <table class="table table-bordered table-striped table-hover">
                 <thead>
                 <tr>
                     {% for item in header_list %}

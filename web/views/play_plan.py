@@ -1,5 +1,7 @@
 import datetime
 import os
+
+from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 from django.http import HttpResponse, FileResponse, Http404
 from django.shortcuts import render, redirect
@@ -66,6 +68,15 @@ class PlanPlayHandler(StarkHandler):
             return '代理'
         return '%s:%s' % (obj.ship.user.company, obj.agent.phone)
 
+    def display_note(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return '备注'
+        try:
+            note = obj.note[:30]
+        except:
+            note = obj.note
+        return note
+
     def display_plan(self, obj=None, is_header=None, *args, **kwargs):
 
         if is_header:
@@ -122,7 +133,7 @@ class PlanPlayHandler(StarkHandler):
                 if is_remove:
                     try:
                         return '%s----->%s' % (
-                        is_remove.last().location.title + is_remove.last().next_port, obj.next_port)
+                            is_remove.last().location.title + is_remove.last().next_port, obj.next_port)
                     except:
                         return obj.next_port
                 return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
@@ -137,7 +148,7 @@ class PlanPlayHandler(StarkHandler):
 
     list_display = [StarkHandler.display_checkbox, 'ship', display_IMO, display_MMSI, display_nationality,
                     display_goods, display_purpose, display_last_port, get_datetime_text('时间', 'move_time'),
-                    display_location, display_plan, display_agent]
+                    display_location, display_plan,display_note, display_agent]
 
     def action_multi_complete(self, request, *args, **kwargs):
         user_obj = request.obj
@@ -293,4 +304,4 @@ class PlanPlayHandler(StarkHandler):
         a = Q(location__department=obj.department)
         b = Q(last_location__department=obj.department)
         # return self.model_class.objects.filter(boat_status=7, location__department=obj.department)
-        return self.model_class.objects.filter(boat_status=7).filter(a | b)
+        return self.model_class.objects.filter(boat_status=7).filter(a | b).filter(move_time__range=[datetime.date.today() - relativedelta(days=1),datetime.date.today() + relativedelta(days=1)])

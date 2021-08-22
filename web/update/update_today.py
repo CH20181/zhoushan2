@@ -1,4 +1,6 @@
 import datetime
+
+from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 from django.http import HttpResponse
 from itertools import chain
@@ -183,8 +185,9 @@ class Create():
 
     def main(self):
         if self.department == '指挥中心':
-            plan_obj = models.Plan.objects.filter(boat_status=7, move_time__gt=self.get_today_time).order_by(
-                'title__order')
+            tomorrow = datetime.date.today()+ relativedelta(days=1)
+            # plan_obj = models.Plan.objects.filter(boat_status=7, move_time__gt=self.get_today_time).order_by('title__order')
+            plan_obj = models.Plan.objects.filter(boat_status=7, move_time__gt=tomorrow).order_by('title__order')
         else:
             a = Q(location__department__title=self.department)
             b = Q(last_location__department__title=self.department)
