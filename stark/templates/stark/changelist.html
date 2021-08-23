@@ -84,7 +84,7 @@
                 </thead>
                 <tbody>
                 {% for row in body_list %}
-                    <tr>
+                    <tr {% for ele in row %}{% if ele.boat_status_id == 6 %}class="success"{% endif %}{% endfor %}>
                         {% for ele in row %}
                             <td>{{ ele }}</td>
                         {% endfor %}

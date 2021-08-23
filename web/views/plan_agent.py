@@ -8,6 +8,8 @@ from stark.service.v1 import StarkHandler, get_choice_text, get_datetime_text, S
 from web import models
 import datetime
 from dateutil.relativedelta import relativedelta
+
+
 class PlanAgentModelForm(StarkModelForm):
     """
     代理添加编辑船情计划的model
@@ -35,7 +37,11 @@ class PlanAgentModelForm(StarkModelForm):
 
     def clean_next_port(self):
         next_port = self.cleaned_data.get('next_port')
-        if next_port:
+        str_list = ['秀山东', '虾峙门', ]
+        for i in str_list:
+            if i in next_port:
+                raise ValidationError('锚地填写锚地两个字')
+        if next_port and len(next_port) < 10:
             return next_port
         raise ValidationError('请输入在港泊位，锚地填写无')
         # if not next_port:
@@ -70,6 +76,13 @@ class PlanAgentHandler(StarkHandler):
                 form.instance.ship_id = ship_id
                 form.instance.agent_id = user_id  # 添加添加人的信息
                 form.instance.ship.user_id = user_id
+                # 这里阻止一下重复添加船情
+                location_id = form.instance.location_id
+                is_have = models.Plan.objects.filter(ship_id=ship_id, title_id=title_id,
+                                                     location_id=location_id).first()
+                if is_have:
+                    return HttpResponse('请勿重复添加相同的计划，请将取消的计划删除后重试')
+
                 # 申请人证对照
                 if title_id == 6:
                     form.instance.boat_status_id = 9  # 船舶计划表添加船舶状态信息

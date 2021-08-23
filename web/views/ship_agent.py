@@ -38,14 +38,18 @@ class ShipCheckModelForm(StarkModelForm):
 
     def clean_port_in(self):
         port_in = self.cleaned_data.get('port_in')
-        if port_in:
+        str_list = ['秀山东','虾峙门',]
+        for i in str_list:
+            if i in port_in:
+                raise ValidationError('锚地填写锚地两个字')
+        if port_in and len(port_in)<10:
             return port_in
-        raise ValidationError('请输入在港泊位，锚地填写无')
+        raise ValidationError('请输入在港泊位，格式：1#码头2#泊位，锚地填写无')
 
     def clean_location(self):
         location = self.cleaned_data.get('location')
         if not location:
-            raise ValidationError('请填写该轮在港位置，如果为入境、入港船舶，请选择最后一项“入港、入境船舶专用”')
+            raise ValidationError('请填写该轮在港位置，如果为入境、入港船舶，请选择最后一项“无”')
         return location
 
     def clean_IMO(self):

@@ -148,7 +148,7 @@ class PlanPlayHandler(StarkHandler):
 
     list_display = [StarkHandler.display_checkbox, 'ship', display_IMO, display_MMSI, display_nationality,
                     display_goods, display_purpose, display_last_port, get_datetime_text('时间', 'move_time'),
-                    display_location, display_plan,display_note, display_agent]
+                    display_location, display_plan,display_agent]
 
     def action_multi_complete(self, request, *args, **kwargs):
         user_obj = request.obj
@@ -296,12 +296,15 @@ class PlanPlayHandler(StarkHandler):
         patterns.extend(self.extra_urls())
         return patterns
 
+    order_list = ['title__order']
     def get_query_set(self, request, *args, **kwargs):
         # 这里是每个队的工单列表
         obj = request.obj
-        if obj.department == '指挥中心':
+        if obj.department.title == '指挥中心':
             return self.model_class.objects.filter(boat_status=7)
         a = Q(location__department=obj.department)
         b = Q(last_location__department=obj.department)
         # return self.model_class.objects.filter(boat_status=7, location__department=obj.department)
-        return self.model_class.objects.filter(boat_status=7).filter(a | b).filter(move_time__range=[datetime.date.today() - relativedelta(days=1),datetime.date.today() + relativedelta(days=1)])
+        # return self.model_class.objects.filter(boat_status=7).filter(a | b).filter(move_time__range=[datetime.date.today() - relativedelta(days=1),datetime.date.today() + relativedelta(days=1)])
+        # return self.model_class.objects.filter(a | b).filter(move_time__range=[datetime.date.today() - relativedelta(days=1),datetime.date.today() + relativedelta(days=1)])
+        return self.model_class.objects.filter(a | b).filter(move_time__range=[datetime.date.today(),datetime.date.today() + relativedelta(days=1)])
