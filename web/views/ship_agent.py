@@ -73,9 +73,9 @@ class ShipAgentHandler(StarkHandler):
 
     def display_plan(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
-            return '入港/入境/移泊计划'
+            return '船舶计划'
         record_url = reverse('stark:web_plan_agent_list', kwargs={'ship_id': obj.pk})
-        return mark_safe('<a  href="%s">添加</a>' % record_url)
+        return mark_safe("<a class='btn btn-primary btn-sm' href='%s'>计划列表</a>" % record_url)
 
     def display_move(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
@@ -103,7 +103,7 @@ class ShipAgentHandler(StarkHandler):
 
     def get_add_btn(self, request, *args, **kwargs):
         if self.has_add_btn:
-            return "<a class='btn btn-primary' href='%s'>添加船舶基本信息</a>" % self.reverse_commens_url(self.get_add_url_name,
+            return "<a class='btn btn-danger' href='%s'>添加船舶基本信息</a>" % self.reverse_commens_url(self.get_add_url_name,
                                                                                                   *args, **kwargs)
         return None
 
@@ -151,7 +151,7 @@ class ShipAgentHandler(StarkHandler):
 
     list_display = [display_name, 'IMO', 'MMSI', 'nationality', 'crew_detail', 'goods', 'purpose',
                     'last_port', display_port, 'boat_status',
-                    get_choice_text('是否在港', 'status'), display_plan, display_move, ]
+                    get_choice_text('是否在港', 'status'), display_plan, ]
 
     def save(self, form, request, is_update, *args, **kwargs):
         user_id = request.session['user_info']['id']

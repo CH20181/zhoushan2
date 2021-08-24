@@ -66,7 +66,7 @@ class PlanPlayHandler(StarkHandler):
     def display_agent(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '代理'
-        return '%s:%s' % (obj.ship.user.company, obj.agent.phone)
+        return '%s:%s' % (obj.ship.user.company.title[0:5], obj.agent.phone)
 
     def display_note(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:

@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.urls import re_path
+from django.urls import re_path, reverse
 from django.utils.safestring import mark_safe
 from stark.forms.widgets import DateTimePickerInput
 from stark.service.v1 import StarkHandler, get_choice_text, get_datetime_text, StarkModelForm
@@ -93,6 +93,11 @@ class PlanAgentHandler(StarkHandler):
                     form.instance.boat_status_id = title_id
                     form.instance.ship.boat_status_id = title_id  # 在船舶表里添加船舶状态信息
                     if title_id == 3:
+                        # 过滤没有入港直接移泊的情况
+                        obj_is_into = models.Ship.objects.filter(pk=ship_id).first().location_id
+                        if obj_is_into == 83:
+                            return HttpResponse('该船还未入港，不能移泊！！')
+
                         plan_obj_len = len(models.Plan.objects.filter(title_id=3, ship_id=ship_id))
                         if plan_obj_len == 1:
                             form.instance.move_number = 0
@@ -138,20 +143,108 @@ class PlanAgentHandler(StarkHandler):
 
         patterns.extend(self.extra_urls())
         return patterns
+    def get_add_btn(self, request, *args, **kwargs):
+        if self.has_add_btn:
+            return "<a class='btn btn-success' href='%s'>添加入港、入境、移泊、认证对照</a>" % self.reverse_commens_url(self.get_add_url_name,
+                                                                                            *args, **kwargs)
+        return None
+    has_move_btn = True
+    def get_move_btn(self, request, *args, **kwargs):
+        # print(request,**kwargs)
+        ship_id = kwargs.get('ship_id')
+        if self.has_move_btn:
+            return "<a class='btn btn-primary btn-warning' href='%s'>添加出港、出境计划</a>" % reverse('stark:web_ship_agent_get_move', kwargs={'ship_id': ship_id})
+        return None
 
+    # def display_location(self, obj=None, is_header=None, *args, **kwargs):
+    #     if is_header:
+    #         return '停靠地点'
+    #     location = obj.location
+    #     if not location:
+    #         return '%s' % obj.next_port
+    #     return '%s--%s' % (obj.location, obj.next_port)
     def display_location(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
-            return '停靠地点'
+            return '申请停靠地点'
         location = obj.location
-        if not location:
-            return '%s' % obj.next_port
-        return '%s--%s' % (obj.location, obj.next_port)
+        if not location:  # 如果没有值得话，说明是出港、出境情况
+            try:
+                return '%s----->%s' % (obj.last_location.title + obj.last_port, obj.next_port)
+            except:
+                return obj.next_port
+        type_obj = obj.title
+        if type_obj.title == '入境' or type_obj.title == '入港':
+            try:
+                return '%s--->%s' % (obj.ship.last_port, obj.location.title + obj.next_port)
+            except:
+                return '%s--->%s' % (obj.ship.last_port, obj.location.title)
+        elif type_obj.title == '人证对照':
+            try:
+                return '%s%s' % (obj.location.title, obj.next_port)
+            except:
+                return obj.location.title
+        elif type_obj.title == '移泊':
+            plan_obj = models.Plan.objects.filter(ship_id=obj.ship_id, title_id=3)
+            plan_obj_number = obj.move_number
+            # print(plan_obj_number,)
+            try:
+                if plan_obj_number != None:
+                    return '%s--->%s' % (plan_obj[plan_obj_number].location.title + plan_obj[plan_obj_number].next_port,
+                                         obj.location.title + obj.next_port)
+                return '%s--->%s' % (obj.last_location.title + obj.last_port, obj.location.title + obj.next_port)
+            except:
+                ship_id = obj.ship_id
+                is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5],
+                                                     boat_status_id__in=[1, 2, 3, 4, 5, 7, 8, 9]).first()
+                if is_into:
+                    try:
+                        return '%s----->%s' % (
+                            is_into.location.title + is_into.next_port, obj.location.title + obj.next_port)
+                    except:
+                        return '%s----->%s' % (
+                            is_into.location.title, obj.location.title)
+                try:
+                    return '%s--->%s' % (
+                        obj.ship.location.title + obj.ship.next_port, obj.location.title + obj.next_port)
+                except:
+                    return '%s--->%s' % (obj.ship.location.title, obj.next_port)
+                return '%s--->%s' % (obj.last_location.title, obj.location.title)
+                # return '%s--->%s' % (obj.ship.location.title + obj.ship.port_in, obj.location.title)
+        # 出港、出境
+        else:
+            ship_id = obj.ship_id
+            # 此处判断是否为当天入出船舶
+            is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5]).first()
+            if is_into:
+                # 如果是当天入境的还要判断是否有移泊的情况
+                is_remove = models.Plan.objects.filter(ship_id=ship_id, title_id=3,boat_status_id__in=[1, 2, 3, 4, 5, 7, 8, 9],move_time__year=datetime.datetime.now().year,move_time__month=datetime.datetime.now().month,move_time__day=datetime.datetime.now().day)
+                if is_remove:
+                    try:
+                        return '%s----->%s' % (is_remove.last().location.title + is_remove.last().last_port,obj.next_port)
+                    except:
+                        return obj.next_port
+                return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
+            # print(type_obj.title,obj.location.title,obj.next_port)
+            try:
 
+                return '%s--->%s' % (obj.last_location.title+obj.last_port, obj.next_port)
+            except:
+                try:
+                    return obj.ship.location.title
+                except:
+                    return '未填写位置'
+
+        # if type_obj.title == '入境' or type_obj.title == '入港':
+        #     try:
+        #         return '%s--->%s' % (obj.ship.last_port, str(obj.location.title + obj.next_port))
+        #     except:
+        #         return '%s--->%s' % (obj.ship.last_port, obj.location.title)
+        # return '%s--->%s' % (obj.ship.location, obj.location)
     def display_del(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return "删除"
         ship_id = kwargs.get('ship_id')
-        return mark_safe('<a href="%s">删除</a>' % self.reverse_delete_url(pk=obj.pk, ship_id=ship_id))
+        return mark_safe("<a href='%s' class='btn btn-danger btn-xs'>删除</a>" % self.reverse_delete_url(pk=obj.pk, ship_id=ship_id))
 
     # 去掉编辑按钮
     def get_list_display(self, request, *args, **kwargs):
