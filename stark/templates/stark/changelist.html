@@ -83,15 +83,27 @@
                 <thead>
                 <tr>
                     {% for item in header_list %}
-                        <th>{{ item }}</th>
+                        {% if item == '1' or item == '2' %}
+                        {% else %}
+                            <th>{{ item }}</th>
+                        {% endif %}
+
                     {% endfor %}
                 </tr>
                 </thead>
                 <tbody>
                 {% for row in body_list %}
-                    <tr {% for ele in row %}{% if ele.boat_status_id == 6 %}class="success"{% endif %}{% endfor %}>
+                    <tr {% for i in row %}{% if i == 6 %}
+                     class="info"
+                     {% elif i == True %}
+                     class="danger"
+                    {% endif %}{% endfor %}>
                         {% for ele in row %}
-                            <td>{{ ele }}</td>
+                            {% if ele == True or ele == False or ele == 7 or ele == 6%}
+                            {% else %}
+                                <td>{{ ele }}</td>
+                            {% endif %}
+
                         {% endfor %}
                     </tr>
                 {% endfor %}

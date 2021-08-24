@@ -82,7 +82,13 @@ class PlanAgentHandler(StarkHandler):
                                                      location_id=location_id).first()
                 if is_have:
                     return HttpResponse('请勿重复添加相同的计划，请将取消的计划删除后重试')
-
+                # 判断是否为补报船舶
+                move_time = form.instance.move_time
+                try:
+                    if move_time.date() == datetime.date.today():
+                        form.instance.report = 1
+                except:
+                    pass
                 # 申请人证对照
                 if title_id == 6:
                     form.instance.boat_status_id = 9  # 船舶计划表添加船舶状态信息

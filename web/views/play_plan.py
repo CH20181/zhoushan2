@@ -76,7 +76,15 @@ class PlanPlayHandler(StarkHandler):
         except:
             note = obj.note
         return note
-
+    # 标记补报船舶
+    def display_report(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return '1'
+        return obj.report
+    def display_comeny(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return '2'
+        return obj.boat_status_id
     def display_plan(self, obj=None, is_header=None, *args, **kwargs):
 
         if is_header:
@@ -148,7 +156,7 @@ class PlanPlayHandler(StarkHandler):
 
     list_display = [StarkHandler.display_checkbox, 'ship', display_IMO, display_MMSI, display_nationality,
                     display_goods, display_purpose, display_last_port, get_datetime_text('时间', 'move_time'),
-                    display_location, display_plan,display_agent]
+                    display_location, display_plan,display_agent,display_comeny,display_report,]
 
     def action_multi_complete(self, request, *args, **kwargs):
         user_obj = request.obj
@@ -199,7 +207,14 @@ class PlanPlayHandler(StarkHandler):
                         elif title_id in status_list_two:
                             plan_obj.ship.status = 2
                     else:
-                        pass
+                        plan_obj.ship.location = location
+                        now_port = plan_obj.next_port
+                        plan_obj.ship.port_in = now_port
+                        title_id = plan_obj.title_id
+                        if title_id in status_list:
+                            plan_obj.ship.status = 1
+                        elif title_id in status_list_two:
+                            plan_obj.ship.status = 2
                 else:
                     if location:
                         plan_obj.ship.location = location
@@ -296,7 +311,7 @@ class PlanPlayHandler(StarkHandler):
         patterns.extend(self.extra_urls())
         return patterns
 
-    order_list = ['title__order']
+    order_list = ['-move_time','title__order']
     def get_query_set(self, request, *args, **kwargs):
         # 这里是每个队的工单列表
         obj = request.obj
@@ -306,5 +321,5 @@ class PlanPlayHandler(StarkHandler):
         b = Q(last_location__department=obj.department)
         # return self.model_class.objects.filter(boat_status=7, location__department=obj.department)
         # return self.model_class.objects.filter(boat_status=7).filter(a | b).filter(move_time__range=[datetime.date.today() - relativedelta(days=1),datetime.date.today() + relativedelta(days=1)])
-        # return self.model_class.objects.filter(a | b).filter(move_time__range=[datetime.date.today() - relativedelta(days=1),datetime.date.today() + relativedelta(days=1)])
-        return self.model_class.objects.filter(a | b).filter(move_time__range=[datetime.date.today(),datetime.date.today() + relativedelta(days=1)])
+        return self.model_class.objects.filter(a | b).filter(move_time__range=[datetime.date.today() - relativedelta(days=1),datetime.date.today() + relativedelta(days=1)]).filter(boat_status__in=[6,7])
+        # return self.model_class.objects.filter(a | b).filter(move_time__range=[datetime.date.today(),datetime.date.today() + relativedelta(days=1)])

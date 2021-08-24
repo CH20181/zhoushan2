@@ -141,7 +141,6 @@ class ShipCheckHandler(StarkHandler):
         #     except:
         #         return '%s--->%s' % (obj.ship.last_port, obj.location.title)
         # return '%s--->%s' % (obj.ship.location, obj.location)
-
     def display_agent(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '申请人'
@@ -149,9 +148,12 @@ class ShipCheckHandler(StarkHandler):
 
     def display_imo(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
-            return 'IMO'
-        return obj.ship.IMO
-
+            return 'MMSI'
+        return obj.ship.MMSI
+    def display_report(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return '1'
+        return obj.report
     def display_apply_time(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '申报时间'
@@ -186,4 +188,4 @@ class ShipCheckHandler(StarkHandler):
 
     list_display = [StarkHandler.display_checkbox, 'ship', display_imo, 'title',display_apply_time,
                     get_datetime_text('计划时间', 'move_time', time_format='%m-%d %H:%M'), display_location,
-                    'boat_status', display_agent]
+                    'boat_status', display_agent,display_report]

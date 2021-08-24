@@ -93,7 +93,7 @@ class ShipDepartmentHandler(StarkHandler):
         if is_header:
             return '查看详情'
         base_url = reverse('stark:web_plan_department_list', kwargs={'ship_id': obj.pk})
-        return mark_safe('<a href="%s">历史船情</a>' % base_url)
+        return mark_safe("<a href='%s' class='btn btn-primary btn-xs'>历史船情</a>" % base_url)
 
     list_display = [display_name, 'nationality',  'IMO', 'MMSI','crew_total', 'crew_detail', 'purpose', 'last_port',
                     display_port,
