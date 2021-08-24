@@ -1,5 +1,6 @@
 import datetime
 
+from dateutil.relativedelta import relativedelta
 from django.urls import re_path
 
 from django.db.models import Q
@@ -118,17 +119,22 @@ class ShipCheckHandler(StarkHandler):
             is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5]).first()
             if is_into:
                 # 如果是当天入境的还要判断是否有移泊的情况
-                is_remove = models.Plan.objects.filter(ship_id=ship_id, title_id=3,boat_status_id__in=[1, 2, 3, 4, 5, 7, 8, 9],move_time__year=datetime.datetime.now().year,move_time__month=datetime.datetime.now().month,move_time__day=datetime.datetime.now().day)
+                is_remove = models.Plan.objects.filter(ship_id=ship_id, title_id=3,
+                                                       boat_status_id__in=[1, 2, 3, 4, 5, 7, 8, 9],
+                                                       move_time__year=datetime.datetime.now().year,
+                                                       move_time__month=datetime.datetime.now().month,
+                                                       move_time__day=datetime.datetime.now().day)
                 if is_remove:
                     try:
-                        return '%s----->%s' % (is_remove.last().location.title + is_remove.last().last_port,obj.next_port)
+                        return '%s----->%s' % (
+                        is_remove.last().location.title + is_remove.last().last_port, obj.next_port)
                     except:
                         return obj.next_port
                 return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
             # print(type_obj.title,obj.location.title,obj.next_port)
             try:
 
-                return '%s--->%s' % (obj.last_location.title+obj.last_port, obj.next_port)
+                return '%s--->%s' % (obj.last_location.title + obj.last_port, obj.next_port)
             except:
                 try:
                     return obj.ship.location.title
@@ -141,6 +147,7 @@ class ShipCheckHandler(StarkHandler):
         #     except:
         #         return '%s--->%s' % (obj.ship.last_port, obj.location.title)
         # return '%s--->%s' % (obj.ship.location, obj.location)
+
     def display_agent(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '申请人'
@@ -150,10 +157,12 @@ class ShipCheckHandler(StarkHandler):
         if is_header:
             return 'MMSI'
         return obj.ship.MMSI
+
     def display_report(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '1'
         return obj.report
+
     def display_apply_time(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '申报时间'
@@ -174,7 +183,8 @@ class ShipCheckHandler(StarkHandler):
         return patterns
 
     def get_query_set(self, request, *args, **kwargs):
-        return self.model_class.objects.filter(~Q(boat_status=6))
+        return self.model_class.objects.filter(~Q(boat_status=6),Q(move_time__gt=datetime.date.today() + relativedelta(days=1)) | Q(report=1))
+        # return self.model_class.objects.filter(boat_status__in=[1,2,3,4,5])
 
     def get_list_display(self, request, *args, **kwargs):
         """
@@ -186,6 +196,6 @@ class ShipCheckHandler(StarkHandler):
             value.extend(self.list_display)
         return value
 
-    list_display = [StarkHandler.display_checkbox, 'ship', display_imo, 'title',display_apply_time,
+    list_display = [StarkHandler.display_checkbox, 'ship', display_imo, 'title', display_apply_time,
                     get_datetime_text('计划时间', 'move_time', time_format='%m-%d %H:%M'), display_location,
-                    'boat_status', display_agent,display_report]
+                    'boat_status', display_agent, display_report]

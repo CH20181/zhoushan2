@@ -93,8 +93,8 @@ class PlanAgentHandler(StarkHandler):
                 if title_id == 6:
                     form.instance.boat_status_id = 9  # 船舶计划表添加船舶状态信息
                     form.instance.ship.boat_status_id = 9
-                    form.instance.save()
                     form.instance.ship.save()
+                    form.instance.save()
                 else:
                     form.instance.boat_status_id = title_id
                     form.instance.ship.boat_status_id = title_id  # 在船舶表里添加船舶状态信息

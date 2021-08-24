@@ -50,7 +50,7 @@ class PlanPlayHandler(StarkHandler):
 
     def display_location(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
-            return '计划'
+            return '申报类型'
         return obj.title
 
     def display_purpose(self, obj=None, is_header=None, *args, **kwargs):
@@ -155,7 +155,7 @@ class PlanPlayHandler(StarkHandler):
                     return '未填写位置'
 
     list_display = [StarkHandler.display_checkbox, 'ship', display_IMO, display_MMSI, display_nationality,
-                    display_goods, display_purpose, display_last_port, get_datetime_text('时间', 'move_time'),
+                    display_goods, display_purpose, display_last_port, get_datetime_text('靠港时间', 'move_time'),
                     display_location, display_plan,display_agent,display_comeny,display_report,]
 
     def action_multi_complete(self, request, *args, **kwargs):
@@ -321,5 +321,5 @@ class PlanPlayHandler(StarkHandler):
         b = Q(last_location__department=obj.department)
         # return self.model_class.objects.filter(boat_status=7, location__department=obj.department)
         # return self.model_class.objects.filter(boat_status=7).filter(a | b).filter(move_time__range=[datetime.date.today() - relativedelta(days=1),datetime.date.today() + relativedelta(days=1)])
-        return self.model_class.objects.filter(a | b).filter(move_time__range=[datetime.date.today() - relativedelta(days=1),datetime.date.today() + relativedelta(days=1)]).filter(boat_status__in=[6,7])
+        return self.model_class.objects.filter(a | b).filter(move_time__range=[datetime.date.today(),datetime.date.today() + relativedelta(days=1)]).filter(boat_status__in=[6,7])
         # return self.model_class.objects.filter(a | b).filter(move_time__range=[datetime.date.today(),datetime.date.today() + relativedelta(days=1)])
