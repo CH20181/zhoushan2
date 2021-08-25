@@ -88,7 +88,7 @@ class PlanPlayHandler(StarkHandler):
     def display_plan(self, obj=None, is_header=None, *args, **kwargs):
 
         if is_header:
-            return '计划'
+            return '停靠地'
         title_into_list = [3, 4, 5]
         title_id = obj.title_id
         # print(title_id, obj.ship.location)
@@ -120,6 +120,8 @@ class PlanPlayHandler(StarkHandler):
                 except:
                     return '%s--->%s' % (obj.ship.location.title, obj.next_port)
                 return '%s--->%s' % (obj.last_location.title, obj.location.title)
+        elif title_id == 6:
+            return obj.location.title + obj.next_port
         # 入港、入境
         elif title_id == 4 or title_id == 5:
             try:
@@ -217,14 +219,18 @@ class PlanPlayHandler(StarkHandler):
                             plan_obj.ship.status = 2
                 else:
                     if location:
-                        plan_obj.ship.location = location
-                        now_port = plan_obj.next_port
-                        plan_obj.ship.port_in = now_port
                         title_id = plan_obj.title_id
-                        if title_id in status_list:
-                            plan_obj.ship.status = 1
-                        elif title_id in status_list_two:
-                            plan_obj.ship.status = 2
+                        if title_id == 6:
+                            pass
+                        else:
+                            plan_obj.ship.location = location
+                            now_port = plan_obj.next_port
+                            plan_obj.ship.port_in = now_port
+                            title_id = plan_obj.title_id
+                            if title_id in status_list:
+                                plan_obj.ship.status = 1
+                            elif title_id in status_list_two:
+                                plan_obj.ship.status = 2
                 plan_obj.boat_status_id = 6
                 plan_obj.save()
                 # 将船舶表的状态也改变过来
