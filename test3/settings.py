@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'web.apps.WebConfig',
     'stark.apps.StarkConfig',
     'rbac.apps.RbacConfig',
-
+    # 'django_crontab'
 ]
 
 MIDDLEWARE = [
@@ -153,3 +153,7 @@ VALID_URL_LIST = [
     '/admin/.*',
     '/register/'
 ]
+# CRONJOBS = [
+#     ('30,31,32 23 * * *', 'web.utils.test.test', '>>/home/python/plan.log'),
+#     ('45,46 23 * * *', 'web.utils.jobs.test', '>>/home/python/jobs.log'),
+# ]
