@@ -317,7 +317,7 @@ class PlanPlayHandler(StarkHandler):
         patterns.extend(self.extra_urls())
         return patterns
 
-    order_list = ['-move_time','title__order']
+    order_list = ['title__order']
     def get_query_set(self, request, *args, **kwargs):
         # 这里是每个队的工单列表
         obj = request.obj

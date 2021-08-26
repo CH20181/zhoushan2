@@ -154,6 +154,6 @@ VALID_URL_LIST = [
     '/register/'
 ]
 # CRONJOBS = [
-#     ('30,31,32 23 * * *', 'web.utils.test.test', '>>/home/python/plan.log'),
-#     ('45,46 23 * * *', 'web.utils.jobs.test', '>>/home/python/jobs.log'),
+#     ('30,31,32 23 * * *', 'web.utils.test.test', '>>/opt/plan.log'),
+#     ('45,46 23 * * *', 'web.utils.jobs.test', '>>/opt/jobs.log'),
 # ]

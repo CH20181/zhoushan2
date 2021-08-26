@@ -102,7 +102,10 @@ class PlanAgentHandler(StarkHandler):
                         # 过滤没有入港直接移泊的情况
                         obj_is_into = models.Ship.objects.filter(pk=ship_id).first().location_id
                         if obj_is_into == 83:
-                            return HttpResponse('该船还未入港，不能移泊！！')
+                            # 有入港入境计划的，可以添加移泊
+                            is_have_into = models.Plan.objects.filter(ship_id=ship_id,title_id__in=[4,5]).first()
+                            if not is_have_into:
+                                return HttpResponse('该船还未入港，不能移泊！！')
 
                         plan_obj_len = len(models.Plan.objects.filter(title_id=3, ship_id=ship_id))
                         if plan_obj_len == 1:
@@ -152,7 +155,7 @@ class PlanAgentHandler(StarkHandler):
 
     def get_add_btn(self, request, *args, **kwargs):
         if self.has_add_btn:
-            return "<a class='btn btn-success' href='%s'>添加入港、入境、移泊、认证对照</a>" % self.reverse_commens_url(
+            return "<a class='btn btn-success' href='%s'>添加入港、入境、移泊、人证对照</a>" % self.reverse_commens_url(
                 self.get_add_url_name,
                 *args, **kwargs)
         return None
