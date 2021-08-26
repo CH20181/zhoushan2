@@ -70,4 +70,4 @@ def test():
                 plan_obj.ship.boat_status_id = 6
                 plan_obj.ship.save()
     else:
-        print('ok')
+        print('已经完成所有计划')

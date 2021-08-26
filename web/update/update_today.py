@@ -187,12 +187,11 @@ class Create():
         if self.department == '指挥中心':
             tomorrow = datetime.date.today()+ relativedelta(days=1)
             # plan_obj = models.Plan.objects.filter(boat_status=7, move_time__gt=self.get_today_time).order_by('title__order')
-            plan_obj = models.Plan.objects.filter(boat_status=7, move_time__gt=tomorrow).order_by('title__order')
+            plan_obj = models.Plan.objects.filter(move_time__gt=tomorrow).order_by('title__order')
         else:
             a = Q(location__department__title=self.department)
             b = Q(last_location__department__title=self.department)
-            plan_obj = models.Plan.objects.filter(boat_status=7,
-                                                  move_time__year=datetime.datetime.now().year,
+            plan_obj = models.Plan.objects.filter(move_time__year=datetime.datetime.now().year,
                                                   move_time__month=datetime.datetime.now().month,
                                                   move_time__day=datetime.datetime.now().day).filter(a | b).order_by(
                 'title__order')

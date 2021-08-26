@@ -129,7 +129,9 @@ class ShipAgentHandler(StarkHandler):
                 if title_id == 1 or title_id == 2:
                     is_alive = models.Ship.objects.filter(pk=ship_id).first().location_id
                     if is_alive == 83:
-                        return HttpResponse('该船不在港，或没有在港位置，不能申请出港、出境')
+                        is_have_into = models.Plan.objects.filter(ship_id=ship_id,title_id__in=[4,5]).first()
+                        if not is_have_into:
+                            return HttpResponse('该船不在港，或没有在港位置，不能申请出港、出境')
                 # print(location)
                 # 先获取原来的所属执勤队，在这次添加出港出境计划后
                 title_num = form.instance.title_id  # 船舶计划名称的id

@@ -79,7 +79,7 @@ class PlanAgentHandler(StarkHandler):
                 # 这里阻止一下重复添加船情
                 location_id = form.instance.location_id
                 is_have = models.Plan.objects.filter(ship_id=ship_id, title_id=title_id,
-                                                     location_id=location_id).first()
+                                                     location_id=location_id,boat_status__in=[1,2,4,5]).first()
                 if is_have:
                     return HttpResponse('请勿重复添加相同的计划，请将取消的计划删除后重试')
                 # 判断是否为补报船舶
