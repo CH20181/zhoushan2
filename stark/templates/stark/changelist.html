@@ -93,13 +93,13 @@
                 </thead>
                 <tbody>
                 {% for row in body_list %}
-                    <tr {% for i in row %}{% if i == 6 %}
+                    <tr {% for i in row %}{% if i == 106 %}
                      class="info"
                      {% elif i == True %}
                      class="danger"
                     {% endif %}{% endfor %}>
                         {% for ele in row %}
-                            {% if ele == True or ele == False or ele == 7 or ele == 6%}
+                            {% if ele == True or ele == False or ele == 107 or ele == 106%}
                             {% else %}
                                 <td>{{ ele }}</td>
                             {% endif %}

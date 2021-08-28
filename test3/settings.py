@@ -134,7 +134,7 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 STATIC_ROOT = '/opt/static/'
 STATIC_URL = '/static/'
-#######################rbac组件配置
+#######################rbac组件配置##########################
 RBAC_USER_MODLE_CLASS = "web.models.UserInfo"
 AUTO_DISCOVER_EXCLUDE = [
     '/admin/.*',

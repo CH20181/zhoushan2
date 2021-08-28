@@ -88,7 +88,7 @@ class PlanPlayHandler(StarkHandler):
     def display_comeny(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '2'
-        return obj.boat_status_id
+        return obj.boat_status_id + 100
 
     def display_plan(self, obj=None, is_header=None, *args, **kwargs):
 
