@@ -7,6 +7,8 @@ from django.http import HttpResponse, FileResponse, Http404
 from django.shortcuts import render, redirect
 from django.urls import re_path
 from django.utils.encoding import escape_uri_path
+from django.utils.safestring import mark_safe
+
 from web.update.update_today import Create
 from stark.service.v1 import StarkHandler, StarkModelForm, get_datetime_text
 from web import models
@@ -76,15 +78,18 @@ class PlanPlayHandler(StarkHandler):
         except:
             note = obj.note
         return note
+
     # 标记补报船舶
     def display_report(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '1'
         return obj.report
+
     def display_comeny(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '2'
         return obj.boat_status_id
+
     def display_plan(self, obj=None, is_header=None, *args, **kwargs):
 
         if is_header:
@@ -156,9 +161,14 @@ class PlanPlayHandler(StarkHandler):
                 except:
                     return '未填写位置'
 
+    def display_del(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return "取消计划"
+        return mark_safe("<a href='%s' class='btn btn-danger btn-xs'>取消</a>" % self.reverse_delete_url(pk=obj.pk))
+
     list_display = [StarkHandler.display_checkbox, 'ship', display_IMO, display_MMSI, display_nationality,
                     display_goods, display_purpose, display_last_port, get_datetime_text('靠港时间', 'move_time'),
-                    display_location, display_plan,display_agent,display_comeny,display_report,]
+                    display_location, display_plan, display_agent, display_comeny, display_report, ]
 
     def action_multi_complete(self, request, *args, **kwargs):
         user_obj = request.obj
@@ -296,6 +306,9 @@ class PlanPlayHandler(StarkHandler):
         origin_list_url = self.reverse_list_url(*args, **kwargs)
         if request.method == 'GET':
             return render(request, self.delete_template or 'stark/delete.html', {'cancel': origin_list_url})
+        is_complete = self.model_class.objects.filter(pk=pk).first().boat_status_id
+        if is_complete == 6:
+            return HttpResponse('已经完成面，禁止删除计划。')
         obj = self.model_class.objects.filter(pk=pk).first().ship
         obj.boat_status_id = None
         obj.save()
@@ -318,6 +331,7 @@ class PlanPlayHandler(StarkHandler):
         return patterns
 
     order_list = ['title__order']
+
     def get_query_set(self, request, *args, **kwargs):
         # 这里是每个队的工单列表
         obj = request.obj
@@ -327,5 +341,7 @@ class PlanPlayHandler(StarkHandler):
         b = Q(last_location__department=obj.department)
         # return self.model_class.objects.filter(boat_status=7, location__department=obj.department)
         # return self.model_class.objects.filter(boat_status=7).filter(a | b).filter(move_time__range=[datetime.date.today() - relativedelta(days=1),datetime.date.today() + relativedelta(days=1)])
-        return self.model_class.objects.filter(a | b).filter(move_time__range=[datetime.date.today(),datetime.date.today() + relativedelta(days=1)]).filter(boat_status__in=[6,7])
+        return self.model_class.objects.filter(a | b).filter(
+            move_time__range=[datetime.date.today(), datetime.date.today() + relativedelta(days=1)]).filter(
+            boat_status__in=[6, 7])
         # return self.model_class.objects.filter(a | b).filter(move_time__range=[datetime.date.today(),datetime.date.today() + relativedelta(days=1)])

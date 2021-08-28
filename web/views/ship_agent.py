@@ -38,11 +38,11 @@ class ShipCheckModelForm(StarkModelForm):
 
     def clean_port_in(self):
         port_in = self.cleaned_data.get('port_in')
-        str_list = ['秀山东','虾峙门',]
+        str_list = ['秀山东', '虾峙门', ]
         for i in str_list:
             if i in port_in:
                 raise ValidationError('锚地填写锚地两个字')
-        if port_in and len(port_in)<10:
+        if port_in and len(port_in) < 10:
             return port_in
         raise ValidationError('请输入在港泊位，格式：1#码头2#泊位，锚地填写无')
 
@@ -70,6 +70,7 @@ class ShipAgentHandler(StarkHandler):
     代理公司视图
     """
     model_form_class = ShipCheckModelForm
+    search_list = ['IMO__contains', 'MMSI__contains', 'chinese_name__contains']
 
     def display_plan(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
@@ -104,7 +105,7 @@ class ShipAgentHandler(StarkHandler):
     def get_add_btn(self, request, *args, **kwargs):
         if self.has_add_btn:
             return "<a class='btn btn-danger' href='%s'>添加船舶基本信息</a>" % self.reverse_commens_url(self.get_add_url_name,
-                                                                                                  *args, **kwargs)
+                                                                                                 *args, **kwargs)
         return None
 
     def add_move(self, request, *args, **kwargs):
@@ -129,7 +130,7 @@ class ShipAgentHandler(StarkHandler):
                 if title_id == 1 or title_id == 2:
                     is_alive = models.Ship.objects.filter(pk=ship_id).first().location_id
                     if is_alive == 83:
-                        is_have_into = models.Plan.objects.filter(ship_id=ship_id,title_id__in=[4,5]).first()
+                        is_have_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5]).first()
                         if not is_have_into:
                             return HttpResponse('该船不在港，或没有在港位置，不能申请出港、出境')
                 # print(location)

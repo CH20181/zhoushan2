@@ -79,7 +79,7 @@ class PlanAgentHandler(StarkHandler):
                 # 这里阻止一下重复添加船情
                 location_id = form.instance.location_id
                 is_have = models.Plan.objects.filter(ship_id=ship_id, title_id=title_id,
-                                                     location_id=location_id,boat_status__in=[1,2,4,5]).first()
+                                                     location_id=location_id, boat_status__in=[1, 2, 4, 5]).first()
                 if is_have:
                     return HttpResponse('请勿重复添加相同的计划，请将取消的计划删除后重试')
                 # 判断是否为补报船舶
@@ -103,7 +103,7 @@ class PlanAgentHandler(StarkHandler):
                         obj_is_into = models.Ship.objects.filter(pk=ship_id).first().location_id
                         if obj_is_into == 83:
                             # 有入港入境计划的，可以添加移泊
-                            is_have_into = models.Plan.objects.filter(ship_id=ship_id,title_id__in=[4,5]).first()
+                            is_have_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5]).first()
                             if not is_have_into:
                                 return HttpResponse('该船还未入港，不能移泊！！')
 
@@ -239,7 +239,7 @@ class PlanAgentHandler(StarkHandler):
                 if is_remove:
                     try:
                         return '%s----->%s' % (
-                        is_remove.last().location.title + is_remove.last().last_port, obj.next_port)
+                            is_remove.last().location.title + is_remove.last().last_port, obj.next_port)
                     except:
                         return obj.next_port
                 return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
@@ -262,10 +262,10 @@ class PlanAgentHandler(StarkHandler):
 
     def display_del(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
-            return "删除"
+            return "取消计划"
         ship_id = kwargs.get('ship_id')
         return mark_safe(
-            "<a href='%s' class='btn btn-danger btn-xs'>删除</a>" % self.reverse_delete_url(pk=obj.pk, ship_id=ship_id))
+            "<a href='%s' class='btn btn-danger btn-xs'>取消</a>" % self.reverse_delete_url(pk=obj.pk, ship_id=ship_id))
 
     # 去掉编辑按钮
     def get_list_display(self, request, *args, **kwargs):

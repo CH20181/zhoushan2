@@ -185,7 +185,7 @@ class Create():
 
     def main(self):
         if self.department == '指挥中心':
-            tomorrow = datetime.date.today()+ relativedelta(days=1)
+            tomorrow = datetime.date.today() + relativedelta(days=1)
             # plan_obj = models.Plan.objects.filter(boat_status=7, move_time__gt=self.get_today_time).order_by('title__order')
             plan_obj = models.Plan.objects.filter(move_time__gt=tomorrow).order_by('title__order')
         else:
@@ -245,10 +245,10 @@ class Create():
         if type_name == 1 or type_name == 2:
             ship_id = plan_obj.ship_id
             # 此处判断是否为当天入出船舶
-            is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5],boat_status=7).first()
+            is_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5], boat_status=7).first()
             if is_into:
                 # return '%s----->%s' % (is_into.location.title + is_into.next_port, plan_obj.next_port)
-                return  '%s----->%s' % (plan_obj.last_location.title + is_into.next_port, plan_obj.next_port)
+                return '%s----->%s' % (plan_obj.last_location.title + is_into.next_port, plan_obj.next_port)
             try:
                 return plan_obj.last_location.title + ship_obj.port_in
             except:
@@ -259,7 +259,9 @@ class Create():
             plan_obj_number = plan_obj.move_number
             try:
                 if plan_obj_number is not None:
-                    return '%s--->%s' % (plan_obj_two[plan_obj_number].location.title + plan_obj_two[plan_obj_number].next_port,plan_obj.location.title + plan_obj.next_port)
+                    return '%s--->%s' % (
+                    plan_obj_two[plan_obj_number].location.title + plan_obj_two[plan_obj_number].next_port,
+                    plan_obj.location.title + plan_obj.next_port)
                 return '%s--->%s' % (plan_obj.last_location.title, plan_obj.location.title + plan_obj.next_port)
                 # return ship_obj.location.title + '----->' + plan_obj.location.title + plan_obj.next_port
             except:

@@ -23,6 +23,7 @@ class CheckPlanModelForm(StarkModelForm):
 class ShipCheckHandler(StarkHandler):
     model_form_class = CheckPlanModelForm
     order_list = ['-id', 'boat_status']
+    search_list = ['ship__chinese_name__contains', 'ship__MMSI__contains', 'ship__IMO__contains']
 
     def action_multi_confirm(self, request, *args, **kwargs):
         pk_list = request.POST.getlist('pk')
@@ -127,7 +128,7 @@ class ShipCheckHandler(StarkHandler):
                 if is_remove:
                     try:
                         return '%s----->%s' % (
-                        is_remove.last().location.title + is_remove.last().last_port, obj.next_port)
+                            is_remove.last().location.title + is_remove.last().last_port, obj.next_port)
                     except:
                         return obj.next_port
                 return '%s----->%s' % (is_into.location.title + is_into.next_port, obj.next_port)
@@ -183,7 +184,9 @@ class ShipCheckHandler(StarkHandler):
         return patterns
 
     def get_query_set(self, request, *args, **kwargs):
-        return self.model_class.objects.filter(~Q(boat_status=6),Q(move_time__gt=datetime.date.today() + relativedelta(days=1)) | Q(report=1))
+        return self.model_class.objects.filter(~Q(boat_status=6),
+                                               Q(move_time__gt=datetime.date.today() + relativedelta(days=1)) | Q(
+                                                   report=1))
         # return self.model_class.objects.filter(boat_status__in=[1,2,3,4,5])
 
     def get_list_display(self, request, *args, **kwargs):

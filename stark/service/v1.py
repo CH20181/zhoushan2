@@ -241,7 +241,8 @@ class StarkHandler(object):
     def display_edit_del(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '操作'
-        tpl = "<a href='%s' class='btn btn-warning btn-xs'>编辑</a> <a href='%s' class='btn btn-warning btn-xs'>删除</a>" % (self.reverse_change_url(pk=obj.pk), self.reverse_delete_url(pk=obj.pk))
+        tpl = "<a href='%s' class='btn btn-warning btn-xs'>编辑</a> <a href='%s' class='btn btn-warning btn-xs'>删除</a>" % (
+        self.reverse_change_url(pk=obj.pk), self.reverse_delete_url(pk=obj.pk))
         return mark_safe(tpl)
 
     def get_list_display(self, request, *args, **kwargs):
@@ -264,11 +265,13 @@ class StarkHandler(object):
             return "<a class='btn btn-primary' href='%s'>添加</a>" % self.reverse_commens_url(self.get_add_url_name,
                                                                                             *args, **kwargs)
         return None
-    has_move_btn =False
+
+    has_move_btn = False
 
     def get_move_btn(self, request, *args, **kwargs):
         if self.has_move_btn:
-            return "<a class='btn btn-primary' href='%s'>添加</a>" % self.reverse_commens_url(self.get_add_url_name,*args, **kwargs)
+            return "<a class='btn btn-primary' href='%s'>添加</a>" % self.reverse_commens_url(self.get_add_url_name,
+                                                                                            *args, **kwargs)
         return None
 
     has_temporary_btn = False
@@ -475,7 +478,7 @@ class StarkHandler(object):
         update_btn = self.get_update_btn(request, *args, **kwargs)
         update_today_btn = self.get_update_today_btn(request, *args, **kwargs)
         temporary_btn = self.get_temporary_btn(request, *args, **kwargs)
-        move_btn = self.get_move_btn(request,*args,**kwargs)
+        move_btn = self.get_move_btn(request, *args, **kwargs)
         # ########## 7. 组合搜索 #########
         search_group_row_list = []
         search_group = self.get_search_group()  # ['gender', 'depart']
