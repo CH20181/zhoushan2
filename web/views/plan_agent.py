@@ -88,7 +88,7 @@ class PlanAgentHandler(StarkHandler):
                 move_time = form.instance.move_time
                 try:
                     if move_time.date() == datetime.date.today():
-                        form.instance.report = 1
+                        form.instance.report = 4
                 except:
                     pass
                 # 申请人证对照

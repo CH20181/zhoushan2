@@ -132,7 +132,7 @@ class Plan(models.Model):
     last_location = models.ForeignKey(verbose_name='上一次位置',to='Location', on_delete=models.CASCADE, null=True,blank=True,related_name='locations')
     last_port = models.CharField(verbose_name='上一次的位置',null=True,blank=True,max_length=25)
     apply = models.DateTimeField(verbose_name='申报时间',blank=True,auto_now_add=True,null=True)
-    report = models.BooleanField(default=0,choices=((0,'否'),(1,'是')),verbose_name='是否为补报')
+    report = models.IntegerField(default=3,choices=((3,'否'),(4,'是')),verbose_name='是否为补报')
     def __str__(self):
         return "%s  %s" % (self.move_time, self.location)
 
