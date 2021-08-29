@@ -81,7 +81,9 @@ class PlanAgentHandler(StarkHandler):
                 is_have = models.Plan.objects.filter(ship_id=ship_id, title_id=title_id,
                                                      location_id=location_id, boat_status__in=[1, 2, 4, 5]).first()
                 if is_have:
-                    return HttpResponse('请勿重复添加相同的计划，请将取消的计划删除后重试')
+                    # return HttpResponse('请勿重复添加相同的计划，请将取消的计划删除后重试')
+                    return render(request, 'error.html',
+                                  {'msg': '请勿重复添加相同的计划，请将原计划取消后重试', 'url': 'stark:web_plan_agent_list', 'pk': ship_id})
                 # 判断是否为补报船舶
                 move_time = form.instance.move_time
                 try:
@@ -105,7 +107,9 @@ class PlanAgentHandler(StarkHandler):
                             # 有入港入境计划的，可以添加移泊
                             is_have_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5]).first()
                             if not is_have_into:
-                                return HttpResponse('该船还未入港，不能移泊！！')
+                                # return HttpResponse('该船还未入港，不能移泊！！')
+                                return render(request, 'error.html', {'url': 'stark:web_plan_agent_list', 'pk': ship_id,
+                                                                      'msg': '该船还未入港，不能移泊！！'})
 
                         plan_obj_len = len(models.Plan.objects.filter(title_id=3, ship_id=ship_id))
                         if plan_obj_len == 1:
@@ -130,12 +134,16 @@ class PlanAgentHandler(StarkHandler):
                     if title_id == 4 or title_id == 5:
                         alive = models.Ship.objects.filter(pk=ship_id).first().location_id
                         if alive != 83:
-                            return HttpResponse('该船已经入港！！请勿重复添加入港、入境计划')
+                            # return HttpResponse('该船已经入港！！请勿重复添加入港、入境计划')
+                            return render(request, 'error.html', {'url': 'stark:web_plan_agent_list', 'pk': ship_id,
+                                                                  'msg': '该船已经入港！！请勿重复添加入港、入境计划!'})
                     form.instance.ship.save()
                     form.instance.save()
 
             else:
-                return HttpResponse('非法输入！！！')
+                # return HttpResponse('非法输入！！！')
+                return render(request, 'error.html',
+                              {'url': 'stark:web_plan_agent_list', 'pk': ship_id, 'msg': '非法输入！！！'})
         form.save()  # 如果为更新就直接保存
 
     def get_urls(self):

@@ -47,10 +47,14 @@ class ShipRemoveHandler(StarkHandler):
             return obj.port_in
         return '%s' % location
 
+    # def display_agent(self, obj=None, is_header=None, *args, **kwargs):
+    #     if is_header:
+    #         return '船舶代理'
+    #     return '%s-%s:%s' % (obj.user.company, obj.user, obj.user.phone)
     def display_agent(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '船舶代理'
-        return '%s-%s:%s' % (obj.user.company, obj.user, obj.user.phone)
+        return '%s-%s:%s' % (obj.user.company.title[0:5], obj.user, obj.user.phone)
 
     def get_query_set(self, request, *args, **kwargs):
         # 在这里过滤所属船舶

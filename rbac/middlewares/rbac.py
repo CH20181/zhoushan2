@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 import re
 from django.utils.deprecation import MiddlewareMixin
-from django.shortcuts import HttpResponse
+from django.shortcuts import HttpResponse, render
 from django.conf import settings
 
 from web import models
@@ -30,12 +30,13 @@ class RbacMiddleware(MiddlewareMixin):
             if re.match(valid_url, current_url):
                 # 白名单中的URL无需权限验证即可访问
                 return None
-            elif re.match('^/$',current_url):
+            elif re.match('^/$', current_url):
                 return None
 
         permission_dict = request.session.get(settings.PERMISSION_SESSION_KEY)
         if not permission_dict:
-            return HttpResponse('未获取到用户权限信息，请登录！')
+            # return HttpResponse('未获取到用户权限信息，请登录！如果为刚注册的账号请联系指挥中心')
+            return render(request, 'error.html', {'msg': '账号注册后，需联系指挥中心审核后，方可使用。', "url": 'login', })
         user_id = request.session['user_info'].get('id')
         if user_id:
             obj = models.UserInfo.objects.get(id=user_id)

@@ -132,7 +132,10 @@ class ShipAgentHandler(StarkHandler):
                     if is_alive == 83:
                         is_have_into = models.Plan.objects.filter(ship_id=ship_id, title_id__in=[4, 5]).first()
                         if not is_have_into:
-                            return HttpResponse('该船不在港，或没有在港位置，不能申请出港、出境')
+                            # return HttpResponse('该船不在港，或没有在港位置，不能申请出港、出境')
+                            return render(request, 'error.html',
+                                          {'msg': '该船不在港，或没有在港位置，不能申请出港、出境', 'url': 'stark:web_plan_agent_list',
+                                           'pk': ship_id})
                 # print(location)
                 # 先获取原来的所属执勤队，在这次添加出港出境计划后
                 title_num = form.instance.title_id  # 船舶计划名称的id
@@ -195,10 +198,13 @@ class ShipAgentHandler(StarkHandler):
         """
         current_change_object = self.model_class.objects.filter(pk=pk).first()
         if not current_change_object:
-            return HttpResponse('要修改的数据不存在，请重新选择！')
+            # return HttpResponse('要修改的数据不存在，请重新选择！')
+            return render(request, 'error.html',
+                          {'msg': '要修改的数据不存在，请重新选择！！', 'url': 'stark:web_ship_agent_list', 'pk': None})
         obj = models.Ship.objects.filter(pk=pk).filter(status=0)
         if not obj:
-            return HttpResponse('禁止修改！！！')
+            # return HttpResponse('禁止修改！！！')
+            return render(request, 'error.html', {'msg': '禁止修改！！！', 'url': 'stark:web_ship_agent_list', 'pk': None})
         # obj = self.model_class.objects.filter(status__in=[1, 2]).first()
         # obj = models.Ship.objects.filter(status__in=[1, 2]).first()
         # print(obj)

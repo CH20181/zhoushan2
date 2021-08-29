@@ -261,7 +261,7 @@ class PlanPlayHandler(StarkHandler):
             value.append(type(self).display_del)
         return value
 
-    def file_response_download1(self, file_path):
+    def file_response_download1(self, request,file_path):
         try:
             response = FileResponse(open(file_path, 'rb'))
             response['content_type'] = "application/octet-stream"
@@ -269,7 +269,8 @@ class PlanPlayHandler(StarkHandler):
                 escape_uri_path(os.path.basename(file_path)))
             return response
         except Exception:
-            return HttpResponse('兄弟，应该是船情没出来。要不等会再试试！！！')
+            # return HttpResponse('兄弟，应该是船情没出来。要不等会再试试！！！')
+            return render(request, 'error.html',{'msg': '兄弟，应该是船情没出来。要不等会再试试！！！', 'url': 'stark:web_plan_play_list', 'pk': None})
 
     has_update_today_btn = True
 
@@ -293,7 +294,7 @@ class PlanPlayHandler(StarkHandler):
             first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\舟山站%s船情.xls' % (
                 self.get_time)
 
-        return self.file_response_download1(first_path)
+        return self.file_response_download1(request,first_path)
         # return HttpResponse('ok')
 
     def delete_view(self, request, pk, *args, **kwargs):
@@ -308,7 +309,9 @@ class PlanPlayHandler(StarkHandler):
             return render(request, self.delete_template or 'stark/delete.html', {'cancel': origin_list_url})
         is_complete = self.model_class.objects.filter(pk=pk).first().boat_status_id
         if is_complete == 6:
-            return HttpResponse('已经完成面，禁止删除计划。')
+            # return HttpResponse('已经完成面，禁止删除计划。')
+            return render(request, 'error.html',
+                          {'msg': '已经完成计划，禁止删除计划。', 'url': 'stark:web_plan_play_list', 'pk': None})
         obj = self.model_class.objects.filter(pk=pk).first().ship
         obj.boat_status_id = None
         obj.save()
