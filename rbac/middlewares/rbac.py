@@ -73,4 +73,5 @@ class RbacMiddleware(MiddlewareMixin):
                 break
 
         if not flag:
-            return HttpResponse('无权访问')
+            # return HttpResponse('无权访问')
+            return render(request, 'error.html',{'msg': '无权访问该页面。', 'url': 'stark:web_ship_agent_list', })

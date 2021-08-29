@@ -27,7 +27,13 @@ def login(request):
     request.session['user_info'] = {'id': user.id, 'nickname': user.nickname, 'department': str(user.department), }
     # 用户权限信息的初始化
     init_permission(user, request)
-    return redirect('/index/')
+    if user.department_id == None and user.company_id == None:
+        return redirect('/index/')
+    if user.department_id == None:
+        return redirect('/zhoushan/web/ship/agent/list/')
+    elif user.company_id ==None:
+        return redirect('/zhoushan/web/plan/play/list/')
+
 
 
 class UserinfoModelForm(forms.ModelForm):
