@@ -18,7 +18,7 @@ class PlanAgentModelForm(StarkModelForm):
     class Meta:
         model = models.Plan
         exclude = ['ship', 'boat_status', 'agent', 'check_user', 'complete', 'display', 'order', 'move_number',
-                   'last_location', 'last_port']
+                   'last_location', 'last_port','report']
         widgets = {
             'move_time': DateTimePickerInput,
         }

@@ -1,3 +1,6 @@
+import datetime
+
+from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -22,7 +25,12 @@ class ShipGetMove(StarkModelForm):
         # 此处是添加出港出境计划的视图
         self.fields['title'].queryset = models.PlanStatus.objects.filter(pk__in=[1, 2])
 
-
+    def clean_move_time(self):
+        move_time = self.cleaned_data.get('move_time')
+        tomorrow = datetime.date.today() + relativedelta(days=2)
+        if tomorrow > move_time.date():
+            return move_time
+        raise ValidationError('只能申报今天或者明天的船情！！！！')
 class ShipCheckModelForm(StarkModelForm):
     class Meta:
         model = models.Ship
@@ -127,6 +135,13 @@ class ShipAgentHandler(StarkHandler):
                 location = models.Ship.objects.filter(pk=ship_id).first().location
                 # 阻止未入港的船直接申请出境
                 title_id = form.instance.title_id
+                # 判断是否为补报船舶
+                move_time = form.instance.move_time
+                try:
+                    if move_time.date() == datetime.date.today():
+                        form.instance.report = 4
+                except:
+                    pass
                 if title_id == 1 or title_id == 2:
                     is_alive = models.Ship.objects.filter(pk=ship_id).first().location_id
                     if is_alive == 83:
