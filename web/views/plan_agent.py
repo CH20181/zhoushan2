@@ -18,7 +18,7 @@ class PlanAgentModelForm(StarkModelForm):
     class Meta:
         model = models.Plan
         exclude = ['ship', 'boat_status', 'agent', 'check_user', 'complete', 'display', 'order', 'move_number',
-                   'last_location', 'last_port','report']
+                   'last_location', 'last_port', 'report']
         widgets = {
             'move_time': DateTimePickerInput,
         }
@@ -86,8 +86,12 @@ class PlanAgentHandler(StarkHandler):
                                   {'msg': '请勿重复添加相同的计划，请将原计划取消后重试', 'url': 'stark:web_plan_agent_list', 'pk': ship_id})
                 # 判断是否为补报船舶
                 move_time = form.instance.move_time
+                now_time = datetime.datetime.now()
                 try:
                     if move_time.date() == datetime.date.today():
+                        form.instance.report = 4
+                    elif now_time > datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month,
+                                                      datetime.datetime.now().day, 16, 00):
                         form.instance.report = 4
                 except:
                     pass

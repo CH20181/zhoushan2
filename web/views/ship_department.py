@@ -13,7 +13,7 @@ class ShipDepartmentHandler(StarkHandler):
     """
     代理公司视图
     """
-
+    per_page_count = 100
     def display_name(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '名称'

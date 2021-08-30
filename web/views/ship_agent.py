@@ -1,13 +1,16 @@
 import datetime
+from types import FunctionType
 
 from dateutil.relativedelta import relativedelta
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse, re_path
 from django.utils.safestring import mark_safe
 from stark.forms.widgets import DateTimePickerInput
 from stark.service.v1 import StarkHandler, get_choice_text, StarkModelForm
+from stark.utils.pagination import Pagination
 from web import models
 
 
@@ -238,6 +241,132 @@ class ShipAgentHandler(StarkHandler):
         return render(request, self.change_template or 'stark/change.html', {'form': form})
 
     # 过滤没有被删除的船舶，后期加上代理公司的id进行过滤
+    # order_list = ['-plan__move_time']
     def get_query_set(self, request, *args, **kwargs):
         obj = request.obj
-        return self.model_class.objects.filter(display=1, user__company=obj.company).filter(status__in=[0, 1])
+        # print(self.model_class.objects.filter(display=1, user__company=obj.company).filter(status__in=[0, 1]))
+        # print(self.model_class.objects.filter(display=1, user__company=obj.company).filter(status__in=[0, 1]).values('plan','plan__move_time'))
+        obj_list = self.model_class.objects.filter(display=1, user__company=obj.company).filter(status__in=[0, 1])
+        pk_list = []
+        if obj_list:
+            for i in obj_list:
+                is_obj = i.plan_set.all().first()
+                if not is_obj:
+                    pk_list.append(i.pk)
+                else:
+                    pk_list.insert(0,i.plan_set.all().first().ship_id)
+            query_list = self.model_class.objects.filter(pk__in=pk_list).filter(display=1, user__company=obj.company).filter(status__in=[0, 1])
+        else:
+            query_list = obj_list
+        # return self.model_class.objects.filter(display=1, user__company=obj.company).filter(status__in=[0, 1])
+        return query_list
+    def changelist_view(self, request, *args, **kwargs):
+        """
+        列表页面
+        :param request:
+        :return:
+        """
+        # ########## 1. 处理Action ##########
+        action_list = self.get_action_list()
+        action_dict = {func.__name__: func.text for func in action_list}  # {'multi_delete':'批量删除','multi_init':'批量初始化'}
+
+        if request.method == 'POST':
+            action_func_name = request.POST.get('action')
+            if action_func_name and action_func_name in action_dict:
+                action_response = getattr(self, action_func_name)(request, *args, **kwargs)
+                if action_response:
+                    return action_response
+
+        # ########## 2. 获取排序 ##########
+        search_list = self.get_search_list()
+        search_value = request.GET.get('q', '')
+        conn = Q()
+        conn.connector = 'OR'
+        if search_value:
+            for item in search_list:
+                conn.children.append((item, search_value))
+
+        # ########## 3. 获取排序 ##########
+        order_list = self.get_order_list()
+        # 获取组合的条件
+        query_set = self.get_query_set(request, *args, **kwargs)
+        search_group_condition = self.get_search_group_condition(request)
+        queryset = query_set.filter(conn).filter(**search_group_condition)
+
+        # ########## 4. 处理分页 ##########
+        all_count = queryset.count()
+
+        query_params = request.GET.copy()
+        query_params._mutable = True
+
+        pager = Pagination(
+            current_page=request.GET.get('page'),
+            all_count=all_count,
+            base_url=request.path_info,
+            query_params=query_params,
+            per_page=self.per_page_count,
+        )
+
+        data_list = queryset[pager.start:pager.end]
+
+        # ########## 5. 处理表格 ##########
+        list_display = self.get_list_display(request, *args, **kwargs)
+        # 5.1 处理表格的表头
+        header_list = []
+        if list_display:
+            for key_or_func in list_display:
+                if isinstance(key_or_func, FunctionType):
+                    verbose_name = key_or_func(self, obj=None, is_header=True, *args, **kwargs)
+                else:
+                    verbose_name = self.model_class._meta.get_field(key_or_func).verbose_name
+                header_list.append(verbose_name)
+        else:
+            header_list.append(self.model_class._meta.model_name)
+
+        # 5.2 处理表的内容
+
+        body_list = []
+        for row in data_list:
+            tr_list = []
+            if list_display:
+                for key_or_func in list_display:
+                    if isinstance(key_or_func, FunctionType):
+                        tr_list.append(key_or_func(self, row, is_header=False, *args, **kwargs))
+                    else:
+                        tr_list.append(getattr(row, key_or_func))  # obj.gender
+            else:
+                tr_list.append(row)
+            body_list.append(tr_list)
+
+        # ########## 6. 添加按钮 #########
+        add_btn = self.get_add_btn(request, *args, **kwargs)
+        update_btn = self.get_update_btn(request, *args, **kwargs)
+        update_today_btn = self.get_update_today_btn(request, *args, **kwargs)
+        temporary_btn = self.get_temporary_btn(request, *args, **kwargs)
+        move_btn = self.get_move_btn(request, *args, **kwargs)
+        # ########## 7. 组合搜索 #########
+        search_group_row_list = []
+        search_group = self.get_search_group()  # ['gender', 'depart']
+        for option_object in search_group:
+            row = option_object.get_queryset_or_tuple(self.model_class, request, *args, **kwargs)
+            search_group_row_list.append(row)
+
+        return render(
+            request,
+            self.change_list_template or 'stark/changelist.html',
+            {
+                'data_list': data_list,
+                'header_list': header_list,
+                'body_list': body_list,
+                'pager': pager,
+                'add_btn': add_btn,
+                'update_btn': update_btn,
+                'update_today_btn': update_today_btn,
+                'temporary_btn': temporary_btn,
+                'move_btn': move_btn,
+                'search_list': search_list,
+                'search_value': search_value,
+                'action_dict': action_dict,
+                'search_group_row_list': search_group_row_list
+            }
+        )

@@ -104,8 +104,6 @@ class Ship(models.Model):
 
     def __str__(self):
         return self.chinese_name
-
-
 class Plan(models.Model):
     """
     在港船舶计划表

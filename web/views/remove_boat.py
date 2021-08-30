@@ -8,6 +8,7 @@ class ShipRemoveHandler(StarkHandler):
     """
     执勤队视图，指挥中心视图
     """
+    per_page_count = 100
     search_list = ['IMO__contains', 'MMSI__contains', 'chinese_name__contains']
 
     def display_name(self, obj=None, is_header=None, *args, **kwargs):

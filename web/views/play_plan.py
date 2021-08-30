@@ -29,7 +29,8 @@ class PlanPlayModelForm(StarkModelForm):
 class PlanPlayHandler(StarkHandler):
     model_form_class = PlanPlayModelForm
     has_add_btn = False
-
+    per_page_count = 50
+    search_list = ['ship__chinese_name__contains', 'ship__MMSI__contains', 'ship__IMO__contains']
     def display_IMO(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return 'IMO'

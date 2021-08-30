@@ -24,7 +24,7 @@ class ShipCheckHandler(StarkHandler):
     model_form_class = CheckPlanModelForm
     order_list = ['-id', 'boat_status']
     search_list = ['ship__chinese_name__contains', 'ship__MMSI__contains', 'ship__IMO__contains']
-
+    per_page_count = 50
     def action_multi_confirm(self, request, *args, **kwargs):
         pk_list = request.POST.getlist('pk')
         user_id = request.session['user_info']['id']
