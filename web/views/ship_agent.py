@@ -82,7 +82,7 @@ class ShipAgentHandler(StarkHandler):
     """
     model_form_class = ShipCheckModelForm
     search_list = ['IMO__contains', 'MMSI__contains', 'chinese_name__contains']
-
+    has_temporary_btn = True
     def display_plan(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '船舶计划'
@@ -140,8 +140,12 @@ class ShipAgentHandler(StarkHandler):
                 title_id = form.instance.title_id
                 # 判断是否为补报船舶
                 move_time = form.instance.move_time
+                now_time = datetime.datetime.now()
                 try:
                     if move_time.date() == datetime.date.today():
+                        form.instance.report = 4
+                    elif now_time > datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month,
+                                                      datetime.datetime.now().day, 16, 00):
                         form.instance.report = 4
                 except:
                     pass
