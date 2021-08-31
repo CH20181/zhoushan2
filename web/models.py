@@ -104,6 +104,17 @@ class Ship(models.Model):
 
     def __str__(self):
         return self.chinese_name
+
+# class ShipDetail(models.Model):
+#     ship = models.ForeignKey(to='Ship',on_delete=models.CASCADE,related_name='ship_detail',null=True)
+#     user = models.ForeignKey(to='UserInfo',on_delete=models.DO_NOTHING,null=True)
+#     title = models.CharField(max_length=50,verbose_name='事项')
+#     content = models.TextField(verbose_name='内容')
+#     file = models.FileField(upload_to='file/')
+#     old_name = models.CharField(max_length=50,null=True,default='')
+#     add_time = models.DateTimeField(auto_now_add=True,null=True)
+#     note = models.TextField(verbose_name='备注',null=True)
+#     status = models.BooleanField(default=0,choices=((0,'未完成'),(1,'完成')))
 class Plan(models.Model):
     """
     在港船舶计划表

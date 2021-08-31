@@ -181,7 +181,20 @@ class PlanAgentHandler(StarkHandler):
             return "<a class='btn btn-primary btn-warning' href='%s'>添加出港、出境计划</a>" % reverse(
                 'stark:web_ship_agent_get_move', kwargs={'ship_id': ship_id})
         return None
-
+    # has_temporary_btn = True
+    # def get_temporary_btn(self, request, *args, **kwargs):
+    #     """
+    #     下载在港船舶动态
+    #     :param request:
+    #     :param args:
+    #     :param kwargs:
+    #     :return:
+    #     """
+    #     if self.has_temporary_btn:
+    #         return "<a class='btn btn-warning' href='%s'>添加报备信息</a>" % self.reverse_commens_url(
+    #             'web_shipdetail_detail_list',
+    #             *args, **kwargs)
+    #     return None
     # def display_location(self, obj=None, is_header=None, *args, **kwargs):
     #     if is_header:
     #         return '停靠地点'

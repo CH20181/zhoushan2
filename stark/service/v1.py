@@ -443,7 +443,6 @@ class StarkHandler(object):
         )
 
         data_list = queryset[pager.start:pager.end]
-
         # ########## 5. 处理表格 ##########
         list_display = self.get_list_display(request, *args, **kwargs)
         # 5.1 处理表格的表头

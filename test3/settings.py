@@ -147,21 +147,24 @@ MENU_SESSION_KEY = "luffy_permission_menu_key"
 NO_PERMISSION_LIST = [
     '/index/',
     '/logout/',
-    '/register/'
+    '/register/',
+    # '/media/*'
 ]
 VALID_URL_LIST = [
     '/admin/.*',
-    '/register/'
+    '/register/',
 ]
 # CRONJOBS = [
 #     ('30,31,32 23 * * *', 'web.utils.test.test', '>>/opt/plan.log'),
 #     ('45,46 23 * * *', 'web.utils.jobs.test', '>>/opt/jobs.log'),
 # ]
 #####邮件功能
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS = False   #是否使用TLS安全传输协议(用于在两个通信应用程序之间提供保密性和数据完整性。)
-EMAIL_USE_SSL = True    #是否使用SSL加密，qq企业邮箱要求使用
-EMAIL_HOST = 'smtp.qq.com'   #发送邮件的邮箱 的 SMTP服务器，这里用了163邮箱
-EMAIL_PORT = 465     #发件箱的SMTP服务器端口
-EMAIL_HOST_USER = '458426162@qq.com'    #发送邮件的邮箱地址
-EMAIL_HOST_PASSWORD = 'tgrpanemxwsjbibf'         #发送邮件的邮箱密码(这里使用的是授权码)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_USE_TLS = False   #是否使用TLS安全传输协议(用于在两个通信应用程序之间提供保密性和数据完整性。)
+# EMAIL_USE_SSL = True    #是否使用SSL加密，qq企业邮箱要求使用
+# EMAIL_HOST = 'smtp.qq.com'   #发送邮件的邮箱 的 SMTP服务器，这里用了163邮箱
+# EMAIL_PORT = 465     #发件箱的SMTP服务器端口
+# EMAIL_HOST_USER = '458426162@qq.com'    #发送邮件的邮箱地址
+# EMAIL_HOST_PASSWORD = 'tgrpanemxwsjbibf'         #发送邮件的邮箱密码(这里使用的是授权码)
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = os.path.join(BASE_DIR,'media')

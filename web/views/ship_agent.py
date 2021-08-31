@@ -185,7 +185,7 @@ class ShipAgentHandler(StarkHandler):
 
     list_display = [display_name, 'IMO', 'MMSI', 'nationality', 'crew_detail', 'goods', 'purpose',
                     'last_port', display_port, 'boat_status',
-                    get_choice_text('是否在港', 'status'), display_plan, ]
+                    get_choice_text('是否在港', 'status'), display_plan,]
 
     def save(self, form, request, is_update, *args, **kwargs):
         user_id = request.session['user_info']['id']

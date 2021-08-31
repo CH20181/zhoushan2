@@ -1,0 +1,47 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="luffy-container">
+        <div class="row">
+            {% if add_btn %}
+                <div style="margin: 5px 0;float: left;text-align: center" >
+                    {{ add_btn|safe }}
+                </div>
+            {% endif %}
+        </div>
+    <div class="row">
+        <h2 style="font-family: 华文行楷;font-size: 80px;text-align: center">报备信息列表</h2>
+    </div>
+        <div class="row">
+            <div class="col-xs-6 col-md-1"></div>
+            <div class="col-xs-6 col-md-10">
+                {% for header,body in body_list.items %}
+                    <div class="panel panel-primary">
+                        <div class="panel-heading" style="font-size: 20px">
+                            {{ header }}
+                            <h3 class="panel-title"></h3>
+                        </div>
+                        <div class="panel-body">
+                            {#                        <p>{{ body.0}}</p>#}
+                            <div class="panel-body" style="margin-top: 5px;margin-bottom: 5px;font-size: 18px">{{ body.0 }}</div>
+                            <div style="margin-bottom: 5px;margin-top: 2px;font-size: 15px"><a href="/{{ MEDIA_URL }}{{ body.1 }}" target="_blank" >{{ body.3 }}</a></div>
+                            <div style="margin-bottom: 5px;margin-top: 2px;font-size: 20px"><p>{{ body.2 }}</p></div>
+                        </div>
+                    </div>
+
+                {% endfor %}
+                        <nav>
+            <ul class="pagination">
+                {{ pager.page_html|safe }}
+            </ul>
+        </nav>
+
+            </div>
+            <div class="col-xs-6 col-md-1"></div>
+
+
+        </div>
+
+    </div>
+
+
+{% endblock %}
