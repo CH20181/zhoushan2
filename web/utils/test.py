@@ -9,7 +9,7 @@ status_list = [3, 4, 5]
 # 出境、出港
 status_list_two = [1, 2]
 
-obj_list = models.Plan.objects.filter(boat_status=7,move_time__range=[datetime.date.today(), datetime.date.today() + relativedelta(days=1)])
+obj_list = models.Plan.objects.filter(boat_status=7,move_time__range=[datetime.date.today()- relativedelta(days=1), datetime.date.today() + relativedelta(days=1)])
 def test():
     if obj_list:
         for plan_obj in obj_list:

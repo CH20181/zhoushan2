@@ -88,10 +88,9 @@ class PlanAgentHandler(StarkHandler):
                 move_time = form.instance.move_time
                 now_time = datetime.datetime.now()
                 try:
-                    if move_time.date() == datetime.date.today():
-                        form.instance.report = 4
-                    elif now_time > datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month,
-                                                      datetime.datetime.now().day, 16, 00):
+                    if move_time.date() == datetime.date.today() and now_time > datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month,datetime.datetime.now().day, 16, 00):
+                        return render(request, 'error.html',{'msg': '根据规定，当日补报计划不得迟于当天下午16:00，详情请咨询指挥中心。', 'url': 'stark:web_plan_agent_list','pk': ship_id})
+                    elif now_time > datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month,datetime.datetime.now().day, 16, 00) or move_time.date() == datetime.date.today():
                         form.instance.report = 4
                 except:
                     pass
@@ -181,27 +180,10 @@ class PlanAgentHandler(StarkHandler):
             return "<a class='btn btn-primary btn-warning' href='%s'>添加出港、出境计划</a>" % reverse(
                 'stark:web_ship_agent_get_move', kwargs={'ship_id': ship_id})
         return None
-    # has_temporary_btn = True
-    # def get_temporary_btn(self, request, *args, **kwargs):
-    #     """
-    #     下载在港船舶动态
-    #     :param request:
-    #     :param args:
-    #     :param kwargs:
-    #     :return:
-    #     """
-    #     if self.has_temporary_btn:
-    #         return "<a class='btn btn-warning' href='%s'>添加报备信息</a>" % self.reverse_commens_url(
-    #             'web_shipdetail_detail_list',
-    #             *args, **kwargs)
-    #     return None
-    # def display_location(self, obj=None, is_header=None, *args, **kwargs):
-    #     if is_header:
-    #         return '停靠地点'
-    #     location = obj.location
-    #     if not location:
-    #         return '%s' % obj.next_port
-    #     return '%s--%s' % (obj.location, obj.next_port)
+    def display_report(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return '1'
+        return obj.report
     def display_location(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '申请停靠地点'
@@ -304,9 +286,7 @@ class PlanAgentHandler(StarkHandler):
             value.append(type(self).display_del)
         return value
 
-    list_display = ['ship', 'title', get_datetime_text('计划时间', 'move_time', time_format='%Y-%m-%d %H:%M'),
-                    display_location,
-                    'boat_status']
+    list_display = ['ship', 'title', get_datetime_text('计划时间', 'move_time', time_format='%Y-%m-%d %H:%M'),display_location,display_report,'boat_status']
 
     def delete_view(self, request, pk, *args, **kwargs):
         """

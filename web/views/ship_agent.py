@@ -40,7 +40,7 @@ class ShipCheckModelForm(StarkModelForm):
         # exclude = ['user', 'boat_status', 'status', 'port_in', 'display', 'location','note']
         exclude = ['user', 'boat_status', 'status', 'display', 'note', ]
         # fields = ['chinese_name','english_name','nationality','crew_detail','crew_total','goods','IMO','MMSI','purpose','guns','last_port','location']
-        labels = {'port_in': '在港泊位(锚地填写锚地)', 'location': '在港船厂/码头/锚地'}
+        labels = {'port_in': '泊位（进港船舶填无）', 'location': '船厂/码头/锚地（进港船舶选无）'}
 
     def __init__(self, *args, **kwargs):
         super(ShipCheckModelForm, self).__init__(*args, **kwargs)
@@ -142,10 +142,9 @@ class ShipAgentHandler(StarkHandler):
                 move_time = form.instance.move_time
                 now_time = datetime.datetime.now()
                 try:
-                    if move_time.date() == datetime.date.today():
-                        form.instance.report = 4
-                    elif now_time > datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month,
-                                                      datetime.datetime.now().day, 16, 00):
+                    if move_time.date() == datetime.date.today() and now_time > datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month,datetime.datetime.now().day, 16, 00):
+                        return render(request, 'error.html',{'msg': '根据规定，当日补报计划不得迟于当天下午16:00，详情请咨询指挥中心。', 'url': 'stark:web_plan_agent_list','pk': ship_id})
+                    elif now_time > datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month,datetime.datetime.now().day, 16, 00) or move_time.date() == datetime.date.today():
                         form.instance.report = 4
                 except:
                     pass
@@ -291,12 +290,11 @@ class ShipAgentHandler(StarkHandler):
                 conn.children.append((item, search_value))
 
         # ########## 3. 获取排序 ##########
-        order_list = self.get_order_list()
+
         # 获取组合的条件
         query_set = self.get_query_set(request, *args, **kwargs)
         search_group_condition = self.get_search_group_condition(request)
-        queryset = query_set.filter(conn).filter(**search_group_condition)
-
+        queryset = query_set.filter(**search_group_condition)
         # ########## 4. 处理分页 ##########
         all_count = queryset.count()
 

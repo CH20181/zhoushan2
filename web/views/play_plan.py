@@ -168,7 +168,7 @@ class PlanPlayHandler(StarkHandler):
         return mark_safe("<a href='%s' class='btn btn-danger btn-xs'>取消</a>" % self.reverse_delete_url(pk=obj.pk))
 
     list_display = [StarkHandler.display_checkbox, 'ship', display_IMO, display_MMSI, display_nationality,
-                    display_goods, display_purpose, display_last_port, get_datetime_text('靠港时间', 'move_time'),
+                    display_goods, display_purpose, display_last_port, get_datetime_text('计划时间', 'move_time'),
                     display_location, display_plan, display_agent, display_comeny, display_report, ]
 
     def action_multi_complete(self, request, *args, **kwargs):
@@ -274,7 +274,24 @@ class PlanPlayHandler(StarkHandler):
             return render(request, 'error.html',{'msg': '兄弟，应该是船情没出来。要不等会再试试！！！', 'url': 'stark:web_plan_play_list', 'pk': None})
 
     has_update_today_btn = True
-
+    def get_update_today_btn(self, request, *args, **kwargs):
+        """
+        下载今日船情
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        title = request.obj.department.title
+        if self.has_update_today_btn:
+            if title == '指挥中心':
+                return "<a class='btn btn-warning' href='%s' target='_blank'>下载舟山站今日船情</a>" % self.reverse_commens_url(
+                    'update_today',
+                    *args, **kwargs)
+            return "<a class='btn btn-warning' href='%s' target='_blank'>下载今日船情</a>" % self.reverse_commens_url(
+                'update_today',
+                *args, **kwargs)
+        return None
     @property
     def get_time(self):
         e = datetime.datetime.now().year
@@ -284,7 +301,11 @@ class PlanPlayHandler(StarkHandler):
         return c
 
     def update_today(self, request, *args, **kwargs):
-
+        path  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        list_dir = os.listdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        for i in list_dir:
+            if i.endswith('.xls'):
+                os.remove(path +'\\'+ i)
         user_id = request.session['user_info']['id']  # 获取用户的id
         department = request.session['user_info']['department']  # 获取执勤部门
         two_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))

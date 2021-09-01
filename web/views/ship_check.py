@@ -1,15 +1,22 @@
 import datetime
+import os
 
 from dateutil.relativedelta import relativedelta
+from django.http import FileResponse
+from django.shortcuts import render
 from django.urls import re_path
 
 from django.db.models import Q
+from django.utils.encoding import escape_uri_path
+
 from stark.forms.widgets import DateTimePickerInput
 from stark.service.v1 import StarkHandler, get_datetime_text, StarkModelForm
 from web import models
 
-
 ############## 指挥中心审核船情
+from web.update.update_today_order import Create
+from web.update.update_today_report import Create_report
+
 
 class CheckPlanModelForm(StarkModelForm):
     class Meta:
@@ -25,6 +32,7 @@ class ShipCheckHandler(StarkHandler):
     order_list = ['-id', 'boat_status']
     search_list = ['ship__chinese_name__contains', 'ship__MMSI__contains', 'ship__IMO__contains']
     per_page_count = 50
+
     def action_multi_confirm(self, request, *args, **kwargs):
         pk_list = request.POST.getlist('pk')
         user_id = request.session['user_info']['id']
@@ -171,6 +179,95 @@ class ShipCheckHandler(StarkHandler):
 
     has_add_btn = False
 
+    def file_response_download1(self, request, file_path):
+        try:
+            response = FileResponse(open(file_path, 'rb'))
+            response['content_type'] = "application/octet-stream"
+            response['Content-Disposition'] = "attachment; filename*=utf-8''{}".format(
+                escape_uri_path(os.path.basename(file_path)))
+            return response
+        except Exception:
+            # return HttpResponse('兄弟，应该是船情没出来。要不等会再试试！！！')
+            return render(request, 'error.html',
+                          {'msg': '兄弟，应该是船情没出来。要不等会再试试！！！', 'url': 'stark:web_plan_play_list', 'pk': None})
+
+    has_update_today_btn = True
+
+    def get_update_today_btn(self, request, *args, **kwargs):
+        """
+        下载今日船情
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if self.has_update_today_btn:
+            return "<a class='btn btn-warning' href='%s' target='_blank'>下载预报船情</a>" % self.reverse_commens_url(
+                'update_today_order',
+                *args, **kwargs)
+
+        return None
+
+    has_update_btn = True
+
+    def get_update_btn(self, request, *args, **kwargs):
+        """
+        下载在港船舶动态
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if self.has_update_btn:
+            return "<a class='btn btn-success' href='%s' target='_blank'>下载补报船情</a>" % self.reverse_commens_url(
+                'update_today_report',
+                *args, **kwargs)
+        return None
+
+    @property
+    def get_time(self):
+        e = datetime.datetime.now().year
+        a = datetime.datetime.now().month
+        b = datetime.datetime.now().day + 1
+        c = '%s年%s月%s日' % (e, a, b)
+        return c
+
+    @property
+    def get_time_report(self):
+        e = datetime.datetime.now().year
+        a = datetime.datetime.now().month
+        b = datetime.datetime.now().day
+        c = '%s年%s月%s日' % (e, a, b)
+        return c
+
+    def update_today(self, request, *args, **kwargs):
+        path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        list_dir = os.listdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        for i in list_dir:
+            if i.endswith('.xls'):
+                os.remove(path + '\\' + i)
+        user_id = request.session['user_info']['id']  # 获取用户的id
+        department = request.session['user_info']['department']  # 获取执勤部门
+        two_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        Create(two_path, department, user_id, )
+        first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\舟山站%s船情预报.xls' % (self.get_time)
+
+        return self.file_response_download1(request, first_path)
+
+    def update_today_report(self, request, *args, **kwargs):
+        path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        list_dir = os.listdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        for i in list_dir:
+            if i.endswith('.xls'):
+                os.remove(path + '\\' + i)
+        user_id = request.session['user_info']['id']  # 获取用户的id
+        department = request.session['user_info']['department']  # 获取执勤部门
+        two_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        Create_report(two_path, department, user_id, )
+        first_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '\\舟山站%s补报船情.xls' % (
+            self.get_time_report)
+        return self.file_response_download1(request, first_path)
+
     def get_urls(self):
         """
         生成URL
@@ -178,6 +275,8 @@ class ShipCheckHandler(StarkHandler):
         """
         patterns = [
             re_path(r'^list/$', self.wrapper(self.changelist_view), name=self.get_list_url_name),
+            re_path(r'^updatejob/$', self.wrapper(self.update_today), name='update_today_order'),
+            re_path(r'^updatereport/$', self.wrapper(self.update_today_report), name='update_today_report'),
         ]
 
         patterns.extend(self.extra_urls())
@@ -186,7 +285,7 @@ class ShipCheckHandler(StarkHandler):
     def get_query_set(self, request, *args, **kwargs):
         return self.model_class.objects.filter(~Q(boat_status=6),
                                                Q(move_time__gt=datetime.date.today() + relativedelta(days=1)) | Q(
-                                                   report=1))
+                                                   report=4, move_time__gt=datetime.date.today()))
         # return self.model_class.objects.filter(boat_status__in=[1,2,3,4,5])
 
     def get_list_display(self, request, *args, **kwargs):
@@ -199,6 +298,6 @@ class ShipCheckHandler(StarkHandler):
             value.extend(self.list_display)
         return value
 
-    list_display = [StarkHandler.display_checkbox, 'ship', display_imo, 'title', display_apply_time,
+    list_display = [StarkHandler.display_checkbox, 'ship', display_imo, 'title',
                     get_datetime_text('计划时间', 'move_time', time_format='%m-%d %H:%M'), display_location,
-                    'boat_status', display_agent, display_report]
+                    'boat_status', display_agent, display_report,display_apply_time,]

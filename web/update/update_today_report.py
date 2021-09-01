@@ -8,7 +8,7 @@ from web import models
 import xlwt
 
 
-class Create():
+class Create_report():
     def __init__(self, file_name, department, user_id, ):
         self.number = 2
         self.file_name = file_name
@@ -22,6 +22,13 @@ class Create():
     def get_time(self):
         e = datetime.datetime.now().year
         a = datetime.datetime.now().month
+        b = datetime.datetime.now().day + 1
+        c = '%s年%s月%s日' % (e, a, b)
+        return c
+    @property
+    def get_time_report(self):
+        e = datetime.datetime.now().year
+        a = datetime.datetime.now().month
         b = datetime.datetime.now().day
         c = '%s年%s月%s日' % (e, a, b)
         return c
@@ -32,9 +39,8 @@ class Create():
         self.set_init2(new_sheet)
         self.set_init3(new_sheet)
         self.set_init1(new_sheet)
-        b = '%s%s船情' % (self.department, self.get_time)
         if self.department == '指挥中心':
-            b = '舟山站%s船情' % (self.get_time)
+            b = '舟山站%s补报船情' % (self.get_time_report)
         new_sheet.write_merge(0, 0, 0, 18, b, self.style2)
         new_sheet.write(1, 0, "序号", self.style1)
         new_sheet.write(1, 1, "出入类型", self.style1)
@@ -176,35 +182,19 @@ class Create():
     def get_today_time(self):
         c = datetime.datetime.now().year
         a = datetime.datetime.now().month
-        b = datetime.datetime.now().day
+        b = datetime.datetime.now().day - 1
         c = '%s-%s-%s' % (c, a, b)
         return c
 
     def main(self):
-        if self.department == '指挥中心':
-            tomorrow = datetime.date.today() + relativedelta(days=1)
-            # plan_obj = models.Plan.objects.filter(boat_status=7, move_time__gt=self.get_today_time).order_by('title__order')
-            plan_obj = models.Plan.objects.filter(move_time__year=datetime.datetime.now().year,move_time__month=datetime.datetime.now().month,move_time__day=datetime.datetime.now().day).order_by('title__order')
-        else:
-            a = Q(location__department__title=self.department)
-            b = Q(last_location__department__title=self.department)
-            plan_obj = models.Plan.objects.filter(move_time__year=datetime.datetime.now().year,
-                                                  move_time__month=datetime.datetime.now().month,
-                                                  move_time__day=datetime.datetime.now().day).filter(a | b).order_by(
-                'title__order')
-
-            # plan_obj = chain(plan_obj, obj2)
-
+        plan_obj = models.Plan.objects.filter(report=4,move_time__year=datetime.datetime.now().year,move_time__month=datetime.datetime.now().month,move_time__day=datetime.datetime.now().day).order_by('title__order')
         if not plan_obj:
             return
-            # return HttpResponse('别急小伙子，船情还没出来！！！！！')
         for i in plan_obj:
             ship_obj = i.ship
             self.write(i, ship_obj)
-        if self.department == '指挥中心':
-            self.new_wb.save(self.file_name + '\\舟山站%s船情.xls' % self.get_time)
-        else:
-            self.new_wb.save(self.file_name + '\\%s%s船情.xls' % (self.department, self.get_time))
+        self.new_wb.save(self.file_name + '\\舟山站%s补报船情.xls' % self.get_time_report)
+
 
     def into_or_out(self, plan_obj, ship_obj):
         """
