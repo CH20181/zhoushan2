@@ -28,7 +28,11 @@
 
         <form class="form-horizontal" method="post" novalidate>
             {% csrf_token %}
-
+            {% if name %}
+                <div class="row" style="color: #080808;font-family: 华光隶书_CNKI;font-size: 50px;text-align: center">
+                    <h1>船名：{{ name }}</h1>
+                </div>
+            {% endif %}
             {% for field in form %}
               {% if field.label == "中文名"%}
                 <h4 style="color: black;">★★注意：此处为添加船舶基本信息★★</h4>

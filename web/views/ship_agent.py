@@ -34,6 +34,8 @@ class ShipGetMove(StarkModelForm):
         if tomorrow > move_time.date():
             return move_time
         raise ValidationError('只能申报今天或者明天的船情！！！！')
+
+
 class ShipCheckModelForm(StarkModelForm):
     class Meta:
         model = models.Ship
@@ -83,6 +85,18 @@ class ShipAgentHandler(StarkHandler):
     model_form_class = ShipCheckModelForm
     search_list = ['IMO__contains', 'MMSI__contains', 'chinese_name__contains']
     has_temporary_btn = True
+
+    def display_edit_del(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return '操作'
+        title = obj.status
+        tpl = ''
+        if title == 0:
+            tpl = "<a href='%s' class='btn btn-warning btn-xs'>编辑</a> <a href='%s' class='btn btn-warning btn-xs'>删除</a>" % (self.reverse_change_url(pk=obj.pk), self.reverse_delete_url(pk=obj.pk))
+        elif title == 1:
+            tpl = "<a href='%s' class='btn btn-warning btn-xs' style='text-align: center'>归档</a>" % (self.reverse_delete_url(pk=obj.pk))
+        return mark_safe(tpl)
+
     def display_plan(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '船舶计划'
@@ -130,7 +144,11 @@ class ShipAgentHandler(StarkHandler):
         user_id = request.session['user_info']['id']
         ship_id = kwargs.get('ship_id')
         form = ShipGetMove()
-
+        ship_obj = models.Ship.objects.filter(pk=ship_id).first()
+        if ship_obj:
+            name = ship_obj.chinese_name
+        else:
+            name = None
         if request.method == 'POST':
             form = ShipGetMove(request.POST)
             # print(request.POST)
@@ -142,9 +160,15 @@ class ShipAgentHandler(StarkHandler):
                 move_time = form.instance.move_time
                 now_time = datetime.datetime.now()
                 try:
-                    if move_time.date() == datetime.date.today() and now_time > datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month,datetime.datetime.now().day, 16, 00):
-                        return render(request, 'error.html',{'msg': '根据规定，当日补报计划不得迟于当天下午16:00，详情请咨询指挥中心。', 'url': 'stark:web_plan_agent_list','pk': ship_id})
-                    elif now_time > datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month,datetime.datetime.now().day, 16, 00) or move_time.date() == datetime.date.today():
+                    if move_time.date() == datetime.date.today() and now_time > datetime.datetime(
+                            datetime.datetime.now().year, datetime.datetime.now().month, datetime.datetime.now().day,
+                            16, 00):
+                        return render(request, 'error.html',
+                                      {'msg': '根据规定，当日补报计划不得迟于当天下午16:00，详情请咨询指挥中心。', 'url': 'stark:web_plan_agent_list',
+                                       'pk': ship_id})
+                    elif now_time > datetime.datetime(datetime.datetime.now().year, datetime.datetime.now().month,
+                                                      datetime.datetime.now().day, 16,
+                                                      00) or move_time.date() == datetime.date.today():
                         form.instance.report = 4
                 except:
                     pass
@@ -180,11 +204,11 @@ class ShipAgentHandler(StarkHandler):
                 form.instance.ship.agent_id = user_id
                 form.instance.ship.save()
                 return redirect(reverse('stark:web_plan_agent_list', kwargs={'ship_id': ship_id}))
-        return render(request, 'stark/change.html', {'form': form})
+        return render(request, 'stark/change.html', {'form': form, 'name': name})
 
     list_display = [display_name, 'IMO', 'MMSI', 'nationality', 'crew_detail', 'goods', 'purpose',
                     'last_port', display_port, 'boat_status',
-                    get_choice_text('是否在港', 'status'), display_plan,]
+                    get_choice_text('是否在港', 'status'), display_plan, ]
 
     def save(self, form, request, is_update, *args, **kwargs):
         user_id = request.session['user_info']['id']
@@ -257,12 +281,15 @@ class ShipAgentHandler(StarkHandler):
                 if not is_obj:
                     pk_list.append(i.pk)
                 else:
-                    pk_list.insert(0,i.plan_set.all().first().ship_id)
-            query_list = self.model_class.objects.filter(pk__in=pk_list).filter(display=1, user__company=obj.company).filter(status__in=[0, 1])
+                    pk_list.insert(0, i.plan_set.all().first().ship_id)
+            query_list = self.model_class.objects.filter(pk__in=pk_list).filter(display=1,
+                                                                                user__company=obj.company).filter(
+                status__in=[0, 1])
         else:
             query_list = obj_list
         # return self.model_class.objects.filter(display=1, user__company=obj.company).filter(status__in=[0, 1])
         return query_list
+
     def changelist_view(self, request, *args, **kwargs):
         """
         列表页面

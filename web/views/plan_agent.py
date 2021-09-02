@@ -63,7 +63,29 @@ class PlanAgentHandler(StarkHandler):
     代理公司视图
     """
     model_form_class = PlanAgentModelForm
+    def add_view(self, request, *args, **kwargs):
+        """
+        添加页面
+        :param request:
+        :return:
+        """
 
+        model_form_class = self.get_model_form_class(True, request, None, *args, **kwargs)
+        if request.method == 'GET':
+            form = model_form_class()
+            ship_id = kwargs.get('ship_id',None)
+            ship_obj = models.Ship.objects.filter(pk=ship_id).first()
+            if ship_obj:
+                name = ship_obj.chinese_name
+            else:
+                name = None
+            return render(request, self.add_template or 'stark/change.html', {'form': form,'name':name})
+        form = model_form_class(data=request.POST)
+        if form.is_valid():
+            response = self.save(form, request, is_update=False, *args, **kwargs)
+            # 在数据库保存成功后，跳转回列表页面(携带原来的参数)。
+            return response or redirect(self.reverse_list_url(*args, **kwargs))
+        return render(request, self.add_template or 'stark/change.html', {'form': form})
     # 记住这里到时添加一下用户的id，进行过滤，必须是本公司的船，才能添加
     def save(self, form, request, is_update, *args, **kwargs):
 
@@ -271,8 +293,9 @@ class PlanAgentHandler(StarkHandler):
         if is_header:
             return "取消计划"
         ship_id = kwargs.get('ship_id')
-        return mark_safe(
-            "<a href='%s' class='btn btn-danger btn-xs'>取消</a>" % self.reverse_delete_url(pk=obj.pk, ship_id=ship_id))
+        if obj.boat_status_id == 6:
+            return mark_safe("<a href='#' class='btn btn-danger btn-xs' disabled='disabled'>取消</a>")
+        return mark_safe("<a href='%s' class='btn btn-danger btn-xs'>取消</a>" % self.reverse_delete_url(pk=obj.pk, ship_id=ship_id))
 
     # 去掉编辑按钮
     def get_list_display(self, request, *args, **kwargs):
@@ -286,7 +309,7 @@ class PlanAgentHandler(StarkHandler):
             value.append(type(self).display_del)
         return value
 
-    list_display = ['ship', 'title', get_datetime_text('计划时间', 'move_time', time_format='%Y-%m-%d %H:%M'),display_location,display_report,'boat_status']
+    list_display = ['ship', 'title', get_datetime_text('计划时间', 'move_time', time_format='%Y-%m-%d %H:%M'),display_location,get_datetime_text('申报时间', 'apply', time_format='%Y-%m-%d %H:%M'),display_report,'boat_status']
 
     def delete_view(self, request, pk, *args, **kwargs):
         """
