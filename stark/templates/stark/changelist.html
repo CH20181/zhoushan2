@@ -1,4 +1,24 @@
 {% extends 'layout.html' %}
+{% block css %}
+
+    <style>
+        /* 表格样式 */
+        .table > tbody > tr > td {
+            border: 0px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .table thead > tr > th {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .table thead {
+            background: lightslategrey;
+        }
+    </style>
+{% endblock %}
 {% block content %}
     <div class="luffy-container">
 
@@ -73,19 +93,21 @@
                     {{ temporary_btn|safe }}
                 </div>
             {% endif %}
-        {% if move_btn %}
+            {% if move_btn %}
                 <div style="margin: 5px 10px;float: left">
                     {{ move_btn|safe }}
                 </div>
             {% endif %}
 
-                <table class="table table-bordered table-striped table-hover">
+            <table class="table table-bordered table-striped table-hover ">
                 <thead>
                 <tr>
                     {% for item in header_list %}
                         {% if item == '1' or item == '2' %}
+                        {% elif item == '船员国籍和人数' %}
+                            <th width="120px">{{ item }}</th>
                         {% else %}
-                            <th>{{ item }}</th>
+                            <th width="50px">{{ item }}</th>
                         {% endif %}
 
                     {% endfor %}
@@ -94,12 +116,12 @@
                 <tbody>
                 {% for row in body_list %}
                     <tr {% for i in row %}{% if i == 106 %}
-                     class="info"
-                     {% elif i == 4 %}
-                     class="danger"
+                        class="info"
+                    {% elif i == 4 %}
+                        class="danger"
                     {% endif %}{% endfor %}>
                         {% for ele in row %}
-                            {% if ele == 3 or ele == 4 or ele == 107 or ele == 106%}
+                            {% if ele == 3 or ele == 4 or ele == 107 or ele == 106 %}
                             {% else %}
                                 <td>{{ ele }}</td>
                             {% endif %}

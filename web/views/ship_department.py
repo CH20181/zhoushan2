@@ -94,8 +94,18 @@ class ShipDepartmentHandler(StarkHandler):
             return '查看详情'
         base_url = reverse('stark:web_plan_department_list', kwargs={'ship_id': obj.pk})
         return mark_safe("<a href='%s' class='btn btn-primary btn-xs'>历史船情</a>" % base_url)
+    def display_crew_detail(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return '船员国籍和人数'
+        if len(obj.crew_detail) > 20:
+            str_list = list(obj.crew_detail)
+            str_list.insert(20,'222222')
+            str_out = ''.join(str_list)
+            print(str_out,22222)
+            return mark_safe(str_out)
+        return obj.crew_detail
 
-    list_display = [display_name, 'nationality', 'IMO', 'MMSI', 'crew_total', 'crew_detail', 'purpose', 'last_port',
+    list_display = [display_name, 'nationality', 'IMO', 'MMSI', 'crew_total', display_crew_detail, 'purpose', 'last_port',
                     display_port,
                     get_choice_text('船舶状态', 'status'), display_information, get_datetime_text('添加时间', 'create_time'),
                     display_agent]
