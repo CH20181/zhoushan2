@@ -15,6 +15,7 @@ from web.views.plan_department import PlanDepartmentHandler
 from web.views.remove_boat import ShipRemoveHandler
 from web.views.temporary import ShipTemporaryHandler
 from web.views.agent_plan_list import AgentPlanHandler
+from web.views.company_boat_port import CompanyPortHandler
 # from web.views.ship_detail import ShipDetailView
 site.register(models.UserInfo, UserInfoHandler)
 site.register(models.Company, CompanyHandler)
@@ -32,3 +33,4 @@ site.register(models.Ship,ShipRemoveHandler,prev='remove')
 site.register(models.Plan,ShipTemporaryHandler,prev='temporary')
 # site.register(models.ShipDetail,ShipDetailView,prev='detail')
 site.register(models.Plan,AgentPlanHandler,prev='plan_list')
+site.register(models.Ship,CompanyPortHandler,prev='company_view')

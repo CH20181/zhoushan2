@@ -20,10 +20,15 @@ class UserInfo(RbacUserInfo):
     company = models.ForeignKey(verbose_name='代理公司', to="Company", on_delete=models.CASCADE, null=True, blank=True)
     department = models.ForeignKey(verbose_name='所属执勤队', to='Department', blank=True, null=True,
                                    on_delete=models.CASCADE)
-
+    company_port = models.ForeignKey(verbose_name='所属船厂、码头',to='Location',null=True,blank=True,on_delete=models.CASCADE)
     def __str__(self):
         return self.nickname
-
+class MovePlan(models.Model):
+    add_time = models.DateTimeField(auto_now_add=True)
+    last_port = models.CharField(max_length=16,null=True)
+    port_in = models.CharField(verbose_name='位置',max_length=16)
+    user = models.ForeignKey(to=UserInfo,on_delete=models.DO_NOTHING)
+    note = models.TextField(null=True)
 
 class Company(models.Model):
     """

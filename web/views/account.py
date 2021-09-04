@@ -41,7 +41,7 @@ class UserinfoModelForm(forms.ModelForm):
 
     class Meta:
         model = models.UserInfo
-        fields = ['name', 'password', 'r_password', 'email', 'nickname','phone', 'company', 'gender']
+        fields = ['name', 'password', 'r_password', 'email', 'nickname','phone', 'company_port', 'gender']
         widgets = {
             'password': forms.TextInput(attrs={'type': 'password'}),
             'gender': forms.RadioSelect(choices=[(1, "男"), (2, "女"), ])

@@ -97,12 +97,6 @@ class ShipDepartmentHandler(StarkHandler):
     def display_crew_detail(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '船员国籍和人数'
-        if len(obj.crew_detail) > 20:
-            str_list = list(obj.crew_detail)
-            str_list.insert(20,'222222')
-            str_out = ''.join(str_list)
-            print(str_out,22222)
-            return mark_safe(str_out)
         return obj.crew_detail
 
     list_display = [display_name, 'nationality', 'IMO', 'MMSI', 'crew_total', display_crew_detail, 'purpose', 'last_port',

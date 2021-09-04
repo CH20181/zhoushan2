@@ -1,0 +1,57 @@
+{% extends 'layout.html' %}
+{% block css %}
+
+    <style>
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        ul li {
+            float: left;
+            padding: 10px;
+            padding-left: 0;
+            width: 80px;
+        }
+
+        ul li i {
+            font-size: 18px;
+            margin-left: 5px;
+            color: #6d6565;
+        }
+
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="luffy-container">
+
+        <form class="form-horizontal" method="post" novalidate>
+            {% csrf_token %}
+            {% if name %}
+                <div class="row" style="color: #080808;font-family: 华光隶书_CNKI;font-size: 50px;text-align: center">
+                    <h1>船名：{{ name }}</h1>
+                </div>
+            {% endif %}
+            {% for field in form %}
+                <div class="form-group">
+                  <label class="col-sm-2 control-label">{{ field.label }}</label>
+                    <div class="col-sm-8">
+                        {{ field }}
+                        <span style="color: red;">{{ field.errors.0 }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="form-group">
+                <div class="col-sm-offset-2 col-sm-8">
+                    <input type="submit" value="提  交" class="btn btn-primary">
+                </div>
+            </div>
+
+        </form>
+
+
+    </div>
+
+{% endblock %}
