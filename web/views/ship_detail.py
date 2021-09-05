@@ -1,20 +1,21 @@
 import os
 import time
-from types import FunctionType
-
-from django.conf.urls import url
 from django.db.models import Q
-from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.urls import re_path
-from django.utils.safestring import mark_safe
-
+from django.urls import re_path, reverse
 from test3 import settings
 from web import models
-from web.models import ShipDetail
 from stark.service.v1 import StarkHandler
 from stark.utils.pagination import Pagination
 from django import forms
+class DetailView(forms.Form):
+
+    title = forms.CharField(widget=forms.TextInput(attrs={'class': "form-control", 'disabled': True}),
+                                   label='事项', required=False)
+    content = forms.CharField(widget=forms.Textarea(attrs={'class': "form-control", 'disabled': True}), label='内容',
+                                  required=False)
+    note = forms.CharField(widget=forms.Textarea(attrs={'class': "form-control",}), label='备注',
+                            required=True)
 
 
 class ShipDetailForm(forms.Form):
@@ -27,7 +28,6 @@ class ShipDetailView(StarkHandler):
     """
     代理公司视图
     """
-    change_list_template = 'shipdetail.html'
     add_template = 'shipdetail.html'
     change_list_template = 'shipdetaillist.html'
     has_add_btn = True
@@ -39,13 +39,10 @@ class ShipDetailView(StarkHandler):
         """
 
         patterns = [
-            # url(r'^list/$', self.wrapper(self.changelist_view), name=self.get_list_url_name),
-            # url(r'^add/$', self.wrapper(self.add_view), name=self.get_add_url_name),
             re_path(r'^list/(?P<ship_id>\d+)/$', self.wrapper(self.changelist_view), name=self.get_list_url_name),
             re_path(r'^add/(?P<ship_id>\d+)/$', self.wrapper(self.add_view), name=self.get_add_url_name),
             re_path(r'^change/(?P<pk>\d+)/$', self.wrapper(self.change_view), name=self.get_change_url_name),
-            re_path(r'^delete/(?P<pk>\d+)/(?P<ship_id>\d+)/$', self.wrapper(self.delete_view),
-                    name=self.get_delete_url_name),
+            re_path(r'^delete/(?P<pk>\d+)/(?P<ship_id>\d+)/$', self.wrapper(self.delete_view),name=self.get_delete_url_name),
         ]
 
         patterns.extend(self.extra_urls())
@@ -53,12 +50,15 @@ class ShipDetailView(StarkHandler):
 
     def get_add_btn(self, request, *args, **kwargs):
         if self.has_add_btn:
+            pk = request.obj.pk
+            if pk in [15,16,17,18,19,20,21]:
+                return None
             return "<a class='btn btn-warning' href='%s'>添加报备信息</a>" % self.reverse_commens_url(self.get_add_url_name,
                                                                                                 *args, **kwargs)
         return None
 
     def get_query_set(self, request, *args, **kwargs):
-        return self.model_class.objects.all()
+        return self.model_class.objects.filter(ship_id=kwargs.get('ship_id',None))
 
     def changelist_view(self, request, *args, **kwargs):
         """
@@ -95,7 +95,8 @@ class ShipDetailView(StarkHandler):
 
         # ########## 4. 处理分页 ##########
         all_count = queryset.count()
-
+        if all_count < 10:
+            is_show = False
         query_params = request.GET.copy()
         query_params._mutable = True
 
@@ -108,26 +109,21 @@ class ShipDetailView(StarkHandler):
         )
 
         data_list = queryset[pager.start:pager.end]
-        # ########## 5. 处理表格 ##########
-        list_display = self.get_list_display(request, *args, **kwargs)
-        # 5.1 处理表格的表头
-        # header_list = []
-        # if list_display:
-        #     for key_or_func in list_display:
-        #         if isinstance(key_or_func, FunctionType):
-        #             verbose_name = key_or_func(self, obj=None, is_header=True, *args, **kwargs)
-        #         else:
-        #             verbose_name = self.model_class._meta.get_field(key_or_func).verbose_name
-        #         header_list.append(verbose_name)
-        # else:
-        #     header_list.append(self.model_class._meta.model_name)
         body_list = {}
-        shi_id = kwargs.get('ship_id')
-        obj_list = models.ShipDetail.objects.filter(ship_id=shi_id)
+        obj_list = queryset
         if obj_list:
             for i in obj_list:
-                body_list[i.title] = [i.content,i.file,i.add_time,i.old_name]
-
+                note = i.note
+                if note:
+                    #   0    1    2        3      4    5    6     7
+                    # 内容、文件、申报时间、原始名称、id、船名、url 、备注
+                    del_url = ''
+                    body_list[i.title] = [i.content,i.file,i.add_time,i.old_name,i.id,i.ship.chinese_name,del_url,i.note]
+                else:
+                    del_url = reverse('stark:web_shipdetail_detail_delete', kwargs={'pk': i.id,'ship_id':i.ship_id})
+                    #   0   1    2          3     4   5     6
+                    # 内容、文件、申报时间、原始名称、id、船名、删除url
+                    body_list[i.title] = [i.content, i.file, i.add_time, i.old_name, i.id,i.ship.chinese_name,del_url]
         # ########## 6. 添加按钮 #########
         add_btn = self.get_add_btn(request, *args, **kwargs)
         update_btn = self.get_update_btn(request, *args, **kwargs)
@@ -149,6 +145,8 @@ class ShipDetailView(StarkHandler):
                 'body_list': body_list,
                 'pager': pager,
                 'add_btn': add_btn,
+                'id':request.obj.pk,
+                'is_show':is_show,
             }
         )
 
@@ -206,17 +204,16 @@ class ShipDetailView(StarkHandler):
         """
         current_change_object = self.model_class.objects.filter(pk=pk).first()
         if not current_change_object:
-            return HttpResponse('要修改的数据不存在，请重新选择！')
-
-        model_form_class = self.get_model_form_class(False, request, pk, *args, **kwargs)
+            return render(request,'error.html',{'msg':'要修改的信息不存在！！！'})
         if request.method == 'GET':
-            form = model_form_class(instance=current_change_object)
+            form = DetailView(current_change_object.__dict__)
             return render(request, self.change_template or 'stark/change.html', {'form': form})
-        form = model_form_class(data=request.POST, instance=current_change_object)
+        form = DetailView(data=request.POST)
         if form.is_valid():
-            response = self.save(form, request, is_update=True, *args, **kwargs)
+            note = request.POST.get('note',None)
+            models.ShipDetail.objects.filter(pk=pk).update(note=note,status=1)
             # 在数据库保存成功后，跳转回列表页面(携带原来的参数)。
-            return response or redirect(self.reverse_list_url(*args, **kwargs))
+            return redirect(reverse('stark:web_shipdetail_alldetail_list'))
         return render(request, self.change_template or 'stark/change.html', {'form': form})
 
     def delete_view(self, request, pk, *args, **kwargs):
@@ -229,5 +226,9 @@ class ShipDetailView(StarkHandler):
         origin_list_url = self.reverse_list_url(*args, **kwargs)
         if request.method == 'GET':
             return render(request, self.delete_template or 'stark/delete.html', {'cancel': origin_list_url})
+        file_url = self.model_class.objects.get(pk=pk).file
+        path = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        full_path = path + '\\' + str(file_url)
+        os.remove(full_path)
         self.model_class.objects.filter(pk=pk).delete()
         return redirect(origin_list_url)

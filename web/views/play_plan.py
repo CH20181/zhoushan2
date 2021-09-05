@@ -5,7 +5,7 @@ from dateutil.relativedelta import relativedelta
 from django.db.models import Q
 from django.http import HttpResponse, FileResponse, Http404
 from django.shortcuts import render, redirect
-from django.urls import re_path
+from django.urls import re_path, reverse
 from django.utils.encoding import escape_uri_path
 from django.utils.safestring import mark_safe
 
@@ -90,6 +90,10 @@ class PlanPlayHandler(StarkHandler):
         if is_header:
             return '2'
         return obj.boat_status_id + 100
+    def display_detail(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return '报备信息'
+        return mark_safe("<a href='%s' class='btn btn-info btn-xs'>报备信息</a>"% reverse('stark:web_shipdetail_detail_list', kwargs={'ship_id': obj.ship.pk}))
 
     def display_plan(self, obj=None, is_header=None, *args, **kwargs):
 
@@ -162,6 +166,7 @@ class PlanPlayHandler(StarkHandler):
                 except:
                     return '未填写位置'
 
+
     def display_del(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return "取消计划"
@@ -169,7 +174,7 @@ class PlanPlayHandler(StarkHandler):
 
     list_display = [StarkHandler.display_checkbox, 'ship', display_IMO, display_MMSI, display_nationality,
                     display_goods, display_purpose, display_last_port, get_datetime_text('计划时间', 'move_time'),
-                    display_location, display_plan, display_agent, display_comeny, display_report, ]
+                    display_location, display_plan, display_agent,display_detail, display_comeny, display_report, ]
 
     def action_multi_complete(self, request, *args, **kwargs):
         user_obj = request.obj

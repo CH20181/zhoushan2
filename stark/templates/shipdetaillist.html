@@ -3,37 +3,56 @@
     <div class="luffy-container">
         <div class="row">
             {% if add_btn %}
-                <div style="margin: 5px 0;float: left;text-align: center" >
+                <div style="margin: 5px 0;float: left;text-align: center">
                     {{ add_btn|safe }}
                 </div>
             {% endif %}
         </div>
-    <div class="row">
-        <h2 style="font-family: 华文行楷;font-size: 80px;text-align: center">报备信息列表</h2>
-    </div>
+        <div class="row">
+            <h2 style="font-family: 华文行楷;font-size: 80px;text-align: center">报备信息列表</h2>
+        </div>
         <div class="row">
             <div class="col-xs-6 col-md-1"></div>
             <div class="col-xs-6 col-md-10">
                 {% for header,body in body_list.items %}
                     <div class="panel panel-primary">
                         <div class="panel-heading" style="font-size: 20px">
-                            {{ header }}
-                            <h3 class="panel-title"></h3>
+                            <h1 class="panel-title">{{ body.5 }}&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp{{ header }}{% if body.7 %}
+                            {% else %}
+                                <div style="float:right;"><a href="{{ body.6 }}" ><button class="btn-danger btn-sm">删除</button></a></div>
+                            {% endif %} </h1>
                         </div>
                         <div class="panel-body">
-                            {#                        <p>{{ body.0}}</p>#}
-                            <div class="panel-body" style="margin-top: 5px;margin-bottom: 5px;font-size: 18px">{{ body.0 }}</div>
-                            <div style="margin-bottom: 5px;margin-top: 2px;font-size: 15px"><a href="/{{ MEDIA_URL }}{{ body.1 }}" target="_blank" >{{ body.3 }}</a></div>
-                            <div style="margin-bottom: 5px;margin-top: 2px;font-size: 20px"><p>{{ body.2 }}</p></div>
+                            <div class="panel-body"
+                                 style="margin-top: 5px;margin-bottom: 5px;font-size: 18px">{{ body.0 }}</div>
+                            <div style="margin-bottom: 5px;margin-top: 2px;font-size: 15px"><a
+                                    href="/{{ MEDIA_URL }}{{ body.1 }}" target="_blank">{{ body.3 }}</a></div>
+                            <div style="margin-bottom: 5px;margin-top: 2px;font-size: 20px"><p>申报时间：{{ body.2 }}</p>
+                            </div>
+                            {% if body.7 %}
+                                <div style="margin-bottom: 5px;margin-top: 2px;font-size: 20px;color: red"><p>
+                                    指挥中心回复：{{ body.7 }}</p></div>
+                            {% endif %}
+
+                            {% if id == 16 %}
+                                <div class="float-right"><a href="{% url 'stark:web_shipdetail_detail_change' body.4 %}">
+                                <button>回复</button>
+                            </a></div>
+                            {% endif %}
                         </div>
+
                     </div>
 
+
+
                 {% endfor %}
-                        <nav>
-            <ul class="pagination">
-                {{ pager.page_html|safe }}
-            </ul>
-        </nav>
+                {% if show %}
+                <nav>
+                    <ul class="pagination">
+                        {{ pager.page_html|safe }}
+                    </ul>
+                </nav>
+                {% endif %}
 
             </div>
             <div class="col-xs-6 col-md-1"></div>

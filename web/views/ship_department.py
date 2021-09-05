@@ -88,7 +88,10 @@ class ShipDepartmentHandler(StarkHandler):
             # return self.model_class.objects
         # return self.model_class.objects.filter(status=1, location__department=user_obj.department)
         return self.model_class.objects.filter(status=1, location__department=user_obj.department)
-
+    def display_detail(self, obj=None, is_header=None, *args, **kwargs):
+        if is_header:
+            return '报备信息'
+        return mark_safe("<a href='%s' class='btn btn-info btn-xs'>报备信息</a>"% reverse('stark:web_shipdetail_detail_list', kwargs={'ship_id': obj.pk}))
     def display_information(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
             return '查看详情'
@@ -101,5 +104,5 @@ class ShipDepartmentHandler(StarkHandler):
 
     list_display = [display_name, 'nationality', 'IMO', 'MMSI', 'crew_total', display_crew_detail, 'purpose', 'last_port',
                     display_port,
-                    get_choice_text('船舶状态', 'status'), display_information, get_datetime_text('添加时间', 'create_time'),
+                    get_choice_text('船舶状态', 'status'), display_information, get_datetime_text('添加时间', 'create_time'),display_detail,
                     display_agent]

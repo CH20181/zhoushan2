@@ -265,7 +265,19 @@ class StarkHandler(object):
             return "<a class='btn btn-primary' href='%s'>添加</a>" % self.reverse_commens_url(self.get_add_url_name,
                                                                                             *args, **kwargs)
         return None
+    has_ship_detail_btn = False
 
+    def get_ship_detail_btn(self, request, *args, **kwargs):
+        """
+        添加船舶报备信息
+        :param request:
+        :param args:
+        :param kwargs:
+        :return:
+        """
+        if self.has_ship_detail_btn:
+            return "<a class='btn btn-danger' href='%s'>报备信息列表</a>" % self.reverse_commens_url('web_shipdetail_detail_list',*args, **kwargs)
+        return None
     has_move_btn = False
 
     def get_move_btn(self, request, *args, **kwargs):
@@ -478,6 +490,7 @@ class StarkHandler(object):
         update_today_btn = self.get_update_today_btn(request, *args, **kwargs)
         temporary_btn = self.get_temporary_btn(request, *args, **kwargs)
         move_btn = self.get_move_btn(request, *args, **kwargs)
+        ship_detail_btn = self.get_ship_detail_btn(request, *args, **kwargs)
         # ########## 7. 组合搜索 #########
         search_group_row_list = []
         search_group = self.get_search_group()  # ['gender', 'depart']
@@ -498,6 +511,7 @@ class StarkHandler(object):
                 'update_today_btn': update_today_btn,
                 'temporary_btn': temporary_btn,
                 'move_btn': move_btn,
+                'ship_detail':ship_detail_btn,
                 'search_list': search_list,
                 'search_value': search_value,
                 'action_dict': action_dict,

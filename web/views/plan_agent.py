@@ -192,6 +192,19 @@ class PlanAgentHandler(StarkHandler):
                 self.get_add_url_name,
                 *args, **kwargs)
         return None
+    has_ship_detail_btn = True
+
+    # def get_temporary_btn(self, request, *args, **kwargs):
+    #     """
+    #     添加船舶报备信息
+    #     :param request:
+    #     :param args:
+    #     :param kwargs:
+    #     :return:
+    #     """
+    #     if self.has_temporary_btn:
+    #         return "<a class='btn btn-warning' href='%s'>报备信息列表</a>" % self.reverse_commens_url('web_shipdetail_detail_list',*args, **kwargs)
+    #     return None
 
     has_move_btn = True
 
@@ -199,8 +212,7 @@ class PlanAgentHandler(StarkHandler):
         # print(request,**kwargs)
         ship_id = kwargs.get('ship_id')
         if self.has_move_btn:
-            return "<a class='btn btn-primary btn-warning' href='%s'>添加出港、出境计划</a>" % reverse(
-                'stark:web_ship_agent_get_move', kwargs={'ship_id': ship_id})
+            return "<a class='btn btn-primary btn-warning' href='%s'>添加出港、出境计划</a>" % reverse('stark:web_ship_agent_get_move', kwargs={'ship_id': ship_id})
         return None
     def display_report(self, obj=None, is_header=None, *args, **kwargs):
         if is_header:
