@@ -30,7 +30,7 @@ class PlanDepartmentHandler(StarkHandler):
                 return '%s--->%s' % (obj.ship.last_port, obj.location.title + obj.next_port)
             except:
                 return '%s--->%s' % (obj.ship.last_port, obj.location.title)
-        elif type_obj.title == '人证对照':
+        elif type_obj.title == '人证对照/抄关':
             try:
                 return '%s%s' % (obj.location.title, obj.next_port)
             except:

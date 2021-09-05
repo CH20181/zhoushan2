@@ -143,6 +143,18 @@ class PlanAgentHandler(StarkHandler):
                             form.instance.move_number = 1
                         elif plan_obj_len == 3:
                             form.instance.move_number = 2
+                        elif plan_obj_len == 4:
+                            form.instance.move_number = 3
+                        elif plan_obj_len == 5:
+                            form.instance.move_number = 4
+                        elif plan_obj_len == 6:
+                            form.instance.move_number = 5
+                        elif plan_obj_len == 7:
+                            form.instance.move_number = 6
+                        elif plan_obj_len == 8:
+                            form.instance.move_number = 7
+                        elif plan_obj_len == 9:
+                            form.instance.move_number = 8
                     # 移泊、入港、入境
                     plan_obj = models.Plan.objects.filter(ship_id=ship_id, title__in=[3, 4, 5])
                     try:
@@ -193,18 +205,6 @@ class PlanAgentHandler(StarkHandler):
                 *args, **kwargs)
         return None
     has_ship_detail_btn = True
-
-    # def get_temporary_btn(self, request, *args, **kwargs):
-    #     """
-    #     添加船舶报备信息
-    #     :param request:
-    #     :param args:
-    #     :param kwargs:
-    #     :return:
-    #     """
-    #     if self.has_temporary_btn:
-    #         return "<a class='btn btn-warning' href='%s'>报备信息列表</a>" % self.reverse_commens_url('web_shipdetail_detail_list',*args, **kwargs)
-    #     return None
 
     has_move_btn = True
 
